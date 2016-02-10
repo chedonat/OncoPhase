@@ -1,3 +1,43 @@
+############################################################
+#
+# OncoPhase Organisation file
+# data.R file to generate the Roxygen help on data
+# OncoPhase.R this file, main file of the package
+
+
+
+#Roxigen help for the package (top help)
+
+#' OncoPhase package for somatic mutation cellular prevalence estimation using haplotype phasing
+#' 
+#' The main functions for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. See the examples at \code{\link{getPrevalence}} for basic steps.
+#' For more detailed information on usage, see the package vignette, by typing
+#' \code{vignette("OncoPhase")}. All support questions should be emailed to  the authors.
+#'
+#' @references
+#'
+#' OncoPhase reference:
+#' 
+#' OncoPhase: A package for computing Somatic Mutation cellular Prevalence in cancer using haplotype phasing. Bioinformatics 2016. Submitted
+#'
+#' OncoPhase reference:
+#' 
+#' SOX2 paper. Detail of the reference to be added
+#'
+#' @author Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
+#' 
+#' @docType package
+#' @name OncoPhase-package
+#' @aliases OncoPhase-package
+#' @keywords package
+NULL
+
+
+
+
+
+
+
 
 # Welcome message
 #################
@@ -5,7 +45,6 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("Welcome to OncoPhase package")
 }
-
 
 # Set up some custom options
 ############################
@@ -202,7 +241,7 @@ numeric_column<-function(df,tumoursamples)
 #'  normal cell contamination at each tumour/sample of the study.
 #' @param nbFirstColumns Number of first columns in snp_allelecount_df to reproduce in
 #'  the output dataframe e.g: Chrom, Pos, Vartype.
-#' @param Region The region of the genome to consider in the format chrom:start-end 
+#' @param region The region of the genome to consider in the format chrom:start-end 
 #' e.g "chr22:179800-98767 
 #' @param tumoursamples The list of tumour samples to consider for the prevalence
 #'  computation. This samples should be present as column header in the data frames 
@@ -216,16 +255,14 @@ numeric_column<-function(df,tumoursamples)
 #' @return A data frame containing the cellular prevalence of each mutation at each tumour sample.
 #' @examples
 #' 
-#' # Example 1: Loading a simple  example data set  with two somatic mutations, 5 germlines SNP, 
-#' and 3 tumour samples
-#' 
+#' # Example 1: Loading a simple  example data set  with two somatic mutations, 5 germlines SNP, and 3 tumour samples
+#' library(OncoPhase)
 #' data(simpleExample2)
 #' attach(simpleExample2)
 #' prevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, 
-#' major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns,tumoursamples)
+#' major_copynumber_df,minor_copynumber_df,normalfraction_df)
 #' 
-#' #Example 2 : Computing somatic mutation cellular prevalence on chromosome 15 of 
-#' patient 11152 (data retrieved from a parallele study)
+#' #Example 2 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
 #' 
 #' data("chr15_11152")
 #' attach(chr15_11152)
@@ -233,8 +270,7 @@ numeric_column<-function(df,tumoursamples)
 #'  major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6,
 #'  region="chr15:50000000-80000000")
 #' 
-#' # Example 3 : Creating a simple example with one somatic mutation and one germline mutation on 
-#' a single tumour sample
+#' # Example 3 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample
 #' 
 #' #Empty dataframe
 #' snpcount_df=as.data.frame(matrix(ncol=4,nrow=2))
@@ -272,6 +308,7 @@ numeric_column<-function(df,tumoursamples)
 #' # mutation1  chr1 200100          0 0.6666667
 #' 
 #' 
+#' @export
 getPrevalence<-function(snp_allelecount_df, ref_allelecount_df,phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=3,method="oxford1",tumoursamples=NULL, region=NULL)
 {
   
@@ -751,8 +788,8 @@ snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,
       
       #if(sample=="O13_A_ABpre")
       #   exit()
-      if(!is.na(prev_somatic_list[sample]) && prev_somatic_list[sample] > 1.00000001 ) exit()
-      if(!is.na(prev_somatic_list[sample]) && prev_somatic_list[sample] < 0 ) exit()
+      #if(!is.na(prev_somatic_list[sample]) && prev_somatic_list[sample] > 1.00000001 ) exit()
+      #if(!is.na(prev_somatic_list[sample]) && prev_somatic_list[sample] < 0 ) exit()
       
     }
     
