@@ -77,7 +77,7 @@ NULL
 ##########################
 
 
-#' This class contains the list of  samples 
+
 setClass("SampleList" )
 
 setClass("SampleCnvAssociation" )
@@ -256,19 +256,15 @@ numeric_column<-function(df,tumoursamples)
 #' @examples
 #' 
 #' # Example 1: Loading a simple  example data set  with two somatic mutations, 5 germlines SNP, and 3 tumour samples
-#' library(OncoPhase)
 #' data(simpleExample2)
 #' attach(simpleExample2)
-#' prevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, 
-#' major_copynumber_df,minor_copynumber_df,normalfraction_df)
+#' prevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df)
 #' 
 #' #Example 2 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
 #' 
 #' data("chr15_11152")
 #' attach(chr15_11152)
-#' masterprevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df,
-#'  major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6,
-#'  region="chr15:50000000-80000000")
+#' masterprevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6, region="chr15:50000000-80000000")
 #' 
 #' # Example 3 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample
 #' 
@@ -299,8 +295,7 @@ numeric_column<-function(df,tumoursamples)
 #' phasing_association_df["mutation1","PhasedGermlines"] = "mutation2"
 #' 
 #' #Computing the prevalence
-#' prevalence_df=getPrevalence(snpcount_df, refcount_df, phasing_association_df, major_cn_df,
-#' minor_cn_df,normalfraction_df)
+#' prevalence_df=getPrevalence(snpcount_df, refcount_df, phasing_association_df, major_cn_df, minor_cn_df,normalfraction_df)
 #' 
 #' print(prevalence_df)
 #' 
