@@ -1,0 +1,52 @@
+---
+title: "OncoPhase: Computing somatic mutation cellular prevalence using haplotype phasing"
+author: "Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{OncoPhase}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This is a generic function computing the cellular prevalence of somatic mutations in cancer using haplotype phasing. The model compute the prevalence of a somatic mutation relatively to close and phased germline mutation. It uses three sources of information as input : The allelic counts, the phasing information and the copy number alteration.
+
+
+## Vignette Info
+
+getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df,
+  major_copynumber_df, minor_copynumber_df, normalfraction_df,
+  nbFirstColumns = 3, method = "oxford1", tumoursamples = NULL,
+  region = NULL)
+
+## Styles
+
+snp_allelecount_df	
+A data frame containing for each mutation the allelic count of the variant at each tumour. Should contains at least Chrom (The mutation chromosome) , End (The mutation position) and IsGermline (is the mutation a Germline or Somatic) among the first columnns.
+ref_allelecount_df	
+A data frame containing for each mutation the allelic count of the reference at each tumour.Should contains at least Chrom (The mutation chromosome) , End (The mutation position) and IsGermline (is the mutation a Germline or Somatic) among the first columnns.
+phasing_association_df	
+A data frame containing for each somatic mutation, a colon separated list of germline SNP phased to it.
+major_copynumber_df	
+A data frame containing for each mutation the major chromosonal copy number at each tumour sample.
+minor_copynumber_df	
+A data frame containing for each mutation the minor chromosonal copy number at each tumour sample.
+normalfraction_df	
+A data frame containing for each mutation the fraction of normal cell contamination at each tumour/sample of the study.
+nbFirstColumns	
+Number of first columns in snp_allelecount_df to reproduce in the output dataframe e.g: Chrom, Pos, Vartype.
+method	
+The method to be used (default : oxford1 , alternatives are oxford2 , oxford3.)
+tumoursamples	
+The list of tumour samples to consider for the prevalence computation. This samples should be present as column header in the data frames snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df and normalfraction_df. If not provided, the headers from nbFirstColumns + 1 to the last column of snp_allelecount_df is retrieved and its intersection with the headers of the four othe rmatrices is considered as the tumour samples of the allelecount or copy number matrices)
+Region	
+The region of the genome to consider in the format chrom:start-end e.g "chr22:179800-98767
+
+
+
+
+## More Examples
+
+#To do
+
+
