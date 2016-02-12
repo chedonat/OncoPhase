@@ -10,7 +10,15 @@
 
 #' OncoPhase package for somatic mutation cellular prevalence estimation using haplotype phasing
 #' 
-#' The main functions for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. See the examples at \code{\link{getPrevalence}} for basic steps.
+#' The main functions for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. 
+#' See the examples at \code{\link{getPrevalence}} for basic steps.
+#' 
+#' Input data for simple case studies as the ones illustrated in the accompagning paper can be generated 
+#' with the function \code{\link{build_casestudy}}.
+#' 
+#' The package include experimental data for chromosome 15 and 22 for two patients of a parallele study.
+#'  (see \code{\link{chr15_OP1019}} and \code{\link{chr22_11152}} )
+#' 
 #' For more detailed information on usage, see the package vignette, by typing
 #' \code{vignette("OncoPhase")}. All support questions should be emailed to  the authors.
 #'
@@ -27,7 +35,7 @@
 #' @author Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
 #' 
 #' @docType package
-#' @name OncoPhase-package
+#' @name OncoPhase
 #' @aliases OncoPhase-package
 #' @keywords package
 NULL
@@ -250,9 +258,19 @@ numeric_column<-function(df,tumoursamples)
 #'   the last column of snp_allelecount_df is retrieved and its intersection with the
 #'    headers of the four othe rmatrices is considered as the tumour samples
 #'   of the allelecount or copy number matrices)
-#' @param method The method to be used (default : oxford1 , alternatives are oxford2 
-#' , oxford3.)
-#' @return A data frame containing the cellular prevalence of each mutation at each tumour sample.
+#' @param method The method to be used for prevalence computation  (default : General , alternatives are FlankingGeneral 
+#' , Linear, FlankingLinear.)
+#' @param min_cells Minimum number of cells (default 2)  In case the estimated number of cells sequenced at the locus of the mutation is less than min_cells, NA is returned.
+#' @param min_alleles Minimum number of alleles (default 4). In case the estimated number of alleles sequenced at the locus of the mutation is less than min_alleles, NA is returned.
+#' @return A data frame containing :
+#'  \describe{
+#'        \item{}{Column 1 to NbFirstcolumn of the input data frame snp_allelecount_df. 
+#'        This will generally include the chromosome and the position of the mutation plus
+#'        any other column you will like to report in the prevalence (e.g REF, ALL, ...) }
+#'         \item{}{One column per tumour sample reporting the prevalences of the mutation 
+#'         at each samples}
+#'      }
+#'      
 #' @examples
 #' 
 #' # Example 1: Loading a simple  example data set  with two somatic mutations, 5 germlines SNP, and 3 tumour samples
@@ -260,13 +278,28 @@ numeric_column<-function(df,tumoursamples)
 #' attach(simpleExample2)
 #' prevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df)
 #' 
-#' #Example 2 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
+#' 
+#' # Example 2: Running a case study as illustrated in the accompagning paper. Available case studies : A, B, C, 1 ,2, . . ., 9
+#' data(CaseStudy_6)
+#' cs=CaseStudy_6
+#' prevalence_CaseStudy6=getPrevalence(cs$snp_allelecount_df, cs$ref_allelecount_df, cs$phasing_association_df, cs$major_copynumber_df,cs$minor_copynumber_df,cs$normalfraction_df)
+#' 
+#' data(CaseStudy_A)
+#' attach(CaseStudy_A)
+#' prevalence_CaseStudy_A=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df)
+#' print(prevalence_CaseStudy_A)
+#' # 	Chrom  End IsGermline   Tumour1
+#' # somaticM  chr3 1000          0 0.6666667
+#' 
+#' 
+#' #Example 3 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
 #' 
 #' data("chr15_11152")
 #' attach(chr15_11152)
 #' masterprevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6, region="chr15:50000000-80000000")
 #' 
-#' # Example 3 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample
+#' 
+#' # Example 4 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample
 #' 
 #' #Empty dataframe
 #' snpcount_df=as.data.frame(matrix(ncol=4,nrow=2))
@@ -292,7 +325,7 @@ numeric_column<-function(df,tumoursamples)
 #' phasing_association_df = as.data.frame(matrix(ncol=1,nrow=1))
 #' colnames(phasing_association_df) = c("PhasedGermline")
 #' rownames(phasing_association_df) = c("mutation1")
-#' phasing_association_df["mutation1","PhasedGermlines"] = "mutation2"
+#' phasing_association_df["mutation1","PhasedMutations"] = "mutation2"
 #' 
 #' #Computing the prevalence
 #' prevalence_df=getPrevalence(snpcount_df, refcount_df, phasing_association_df, major_cn_df, minor_cn_df,normalfraction_df)
@@ -304,7 +337,7 @@ numeric_column<-function(df,tumoursamples)
 #' 
 #' 
 #' @export
-getPrevalence<-function(snp_allelecount_df, ref_allelecount_df,phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=3,method="oxford1",tumoursamples=NULL, region=NULL)
+getPrevalence<-function(snp_allelecount_df, ref_allelecount_df,phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=3,method="General",tumoursamples=NULL, region=NULL,min_cells=2, min_alleles=4)
 {
   
   hg19_dfsize<-list(chr1=249250621,chr2=243199373,chr3=198022430, chr4=191154276, 
@@ -421,7 +454,7 @@ snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,
     # Retrieving the phased germline, if not phased germline skip
     
     phased_germline=""
-    phased_germline=  as.character(phasing_association_df[mut,"PhasedGermlines"])
+    phased_germline=  as.character(phasing_association_df[mut,"PhasedMutations"])
     
     if(is.null(phased_germline))
       next
@@ -753,9 +786,9 @@ snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,
     ############################
     
     #`The user should specify a minimum count of cells and allele for the prevalence to be computed. By default we take 6 cells and 8 alleles.
-    min_cells=4
-    min_alleles=6
-    
+#     min_cells=4
+#     min_alleles=6
+#     
     
     
     prev_somatic_list =vector("numeric", length=length(hatlambda_somatic_list))
@@ -777,7 +810,7 @@ snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,
         next
       
       if (condition_list[sample]=="C2")#CONTEXTE 2
-        prev_somatic_list[sample] = as.numeric(unlist(   phi_cn_list[sample] + (1-phi_cn_list[sample]) * ((hatlambda_somatic_list[sample] - u_list[sample] * sigma_PhasedGermline_list[sample])/v_list[sample])   ))
+        prev_somatic_list[sample] = as.numeric(unlist(   phi_cn_list[sample] + (1-phi_cn_list[sample]) * ((hatlambda_somatic_list[mut,sample] - u_list[sample] * sigma_PhasedGermline_list[sample])/v_list[sample])   ))
       else if (condition_list[sample]=="C1")
         prev_somatic_list[sample] = as.numeric(unlist( (hatlambda_somatic_list[mut,sample] / hatlambda_PhasedGermline_list[sample])* tau_PhasedGermline_list[sample]    ))
       
@@ -805,6 +838,103 @@ snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,
   
   
   masterprevalence
+  
+}
+
+
+
+
+
+
+
+#' Build the input data matrix for a case study
+#' 
+#' This is a generic function to automatically build the five input data frame (snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df) for a case study with one somatic mutation, one germline mutation and one tumour sample.
+#' 
+#' @param lambda_G : count of allele suporting the variant sequence of  the Germline SNP
+#' @param mu_G : count of allele suporting the reference sequence  of  the Germline SNP
+#' @param lambda_S : count of allele suporting the variant sequence of  the somatic mutation 
+#' @param mu_S : count of allele suporting the reference sequence  of  the somatic mutation
+#' @param phi_G : Estimated fraction of cells affected by the CNV (1- normal genotype cell fraction)
+#' @param major_cn: Major copy number at the locus of the mutation
+#' @param minor_cn : Minor copy number at the locus of the mutation 
+#' @return A list containing the following data frames:
+#' 
+#' @param snp_allelecount_df A data frame containing for each mutation the  allelic 
+#' count of the variant at each tumour. Should contains at least Chrom (The mutation
+#'  chromosome) , End (The mutation position) and IsGermline (is the mutation a Germline
+#'   or Somatic)  among the first columnns.
+#' @param ref_allelecount_df A data frame containing for each mutation the allelic count
+#'  of the reference at each tumour.Should contains at least Chrom (The mutation
+#'   chromosome) , End (The mutation position) and IsGermline (is the mutation a Germline
+#'    or Somatic)  among the first columnns.
+#' @param phasing_association_df A data frame containing for each somatic mutation, 
+#' a colon separated list of germline SNP phased to it.
+#' @param major_copynumber_df A data frame containing for each mutation the major
+#'  chromosonal copy number at each tumour sample.
+#' @param minor_copynumber_df A data frame containing for each mutation the minor
+#'  chromosonal copy number at each tumour sample.
+#' @param normalfraction_df A data frame containing for each mutation the fraction of
+#'  normal cell contamination at each tumour/sample of the study.
+#' @return A list containing the following dataframes :
+#'  \describe{
+#'        \item{snp_allelecount_df}{A data frame containing the  count of allele suporting the variant sequence at the somatic and germline  mutations. Chrom is set to chr3, Position of the germline and somatic mutations are respectively set to 100 and 1000}
+#'        \item{ref_allelecount_df}{A data frame containing the  count of allele suporting the reference sequence at the somatic and germline  mutation. Chrom is set to chr3, Position of the germline and somatic mutations are respectively set to 100 and 1000}
+#'        \item{phasing_association_df}{A data frame containing phasing association}
+#'         \item{major_copynumber_df}{A data frame containing the major copy number at the mutation locus}
+#'         \item{minor_copynumber_df}{A data frame containing the minor copy number at the mutation locus}
+#'        \item{normalfraction_df}{A data frame containing the proportion of cells with a normal genotype}
+#'      }
+#'      
+#' @examples
+#' 
+#' # We reproduce here the case study No 6 of the paper
+#'  #Build the input data 
+#'  cs = build_casestudy(lambda_G=16, mu_G=8,lambda_S=14,mu_S=10,phi_G=4/8,major_cn=3,minor_cn=1  )
+#'  #Run the case
+#' prevalence=getPrevalence(cs$snp_allelecount_df, cs$ref_allelecount_df, cs$phasing_association_df,
+#'                          cs$major_copynumber_df,cs$minor_copynumber_df,cs$normalfraction_df)
+#' #print the result
+#' print(prevalence)
+#' #Chrom  End IsGermline Tumour1
+#' #somaticM  chr3 1000          0    0.75
+#' 
+#' @export
+build_casestudy<-function(lambda_G, mu_G,lambda_S, mu_S, phi_G, major_cn, minor_cn)
+{
+  nbTumour = 1
+  chrom="chr3"
+  
+  snp_allelecount_df=as.data.frame(matrix(ncol=3+nbTumour,nrow=2))
+  names(snp_allelecount_df) = c("Chrom","End","IsGermline",paste("Tumour",1:nbTumour,sep=""))
+  rownames(snp_allelecount_df) = c("germlineM","somaticM")
+  ref_allelecount_df = snp_allelecount_df
+  major_copynumber_df= snp_allelecount_df[paste("Tumour",1:nbTumour,sep="")]
+  minor_copynumber_df = snp_allelecount_df[paste("Tumour",1:nbTumour,sep="")]
+  normalfraction_df = snp_allelecount_df[paste("Tumour",1:nbTumour,sep="")]
+  
+  snp_allelecount_df["germlineM",] = c(chrom, 100,1,lambda_G)
+  snp_allelecount_df["somaticM",] = c(chrom, 1000,0,lambda_S)
+  ref_allelecount_df["germlineM",] = c(chrom, 100,1,mu_G)
+  ref_allelecount_df["somaticM",] = c(chrom, 1000,0,mu_S)
+  
+  
+  major_copynumber_df["Tumour1"] = c(major_cn,major_cn)
+  minor_copynumber_df["Tumour1"] = c(minor_cn,minor_cn)
+  normalfraction_df["Tumour1"] = c(1-phi_G,1-phi_G)
+  
+  phasing_association_df = as.data.frame(matrix(ncol=1,nrow=1))
+  colnames(phasing_association_df) = c("PhasedMutations")
+  rownames(phasing_association_df) = c("somaticM")
+  phasing_association_df["somaticM","PhasedMutations"] = "germlineM"
+  
+  
+  # nbFirstColumns = 3
+  # tumoursamples = "Tumour1"
+  # region = chrom
+  list(snp_allelecount_df=snp_allelecount_df, ref_allelecount_df=ref_allelecount_df,
+       phasing_association_df=phasing_association_df, major_copynumber_df=major_copynumber_df,
+       minor_copynumber_df=minor_copynumber_df,normalfraction_df=normalfraction_df)
   
 }
 
@@ -1135,7 +1265,7 @@ Qfunction<-function(lambda_S, lambda_G, theta, theta_m, alpha,beta)
 bestAllele<-function(lambda_S,lambda_G, alpha,beta){
   
   
-  traceoutput=0 
+  traceoutput=0
   
   N=length(lambda_S)
   M=nrow(lambda_G)
@@ -1201,7 +1331,7 @@ bestAllele<-function(lambda_S,lambda_G, alpha,beta){
       QC2= Qfunction(lambda_S,lambda_G,theta_C2, theta[[i]], alpha,beta )
       QC1= Qfunction(lambda_S,lambda_G,theta_C1, theta[[i]],alpha,beta ) 
       
-      if (QC2>QC1)
+      if (QC2>=QC1)
         theta[[i+1]] =theta_C2
       else
         theta[[i+1]] =theta_C1
@@ -1234,7 +1364,7 @@ bestAllele<-function(lambda_S,lambda_G, alpha,beta){
     
     LikC2=complete_loglikelihood(lambda_S,lambda_G, theta[[i+1]],"C2",alpha, beta)
     LikC1=complete_loglikelihood(lambda_S,lambda_G, theta[[i+1]],"C1",alpha, beta)
-    if(LikC2>LikC1)
+    if(LikC2>=LikC1)
     {
       bestC="C2"
     }else
