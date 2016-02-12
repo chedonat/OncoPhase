@@ -6,8 +6,8 @@
 \usage{
 getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df,
   major_copynumber_df, minor_copynumber_df, normalfraction_df,
-  nbFirstColumns = 3, method = "oxford1", tumoursamples = NULL,
-  region = NULL)
+  nbFirstColumns = 3, method = "General", tumoursamples = NULL,
+  region = NULL, min_cells = 2, min_alleles = 4)
 }
 \arguments{
 \item{snp_allelecount_df}{A data frame containing for each mutation the  allelic 
@@ -35,8 +35,8 @@ normal cell contamination at each tumour/sample of the study.}
 \item{nbFirstColumns}{Number of first columns in snp_allelecount_df to reproduce in
 the output dataframe e.g: Chrom, Pos, Vartype.}
 
-\item{method}{The method to be used (default : oxford1 , alternatives are oxford2 
-, oxford3.)}
+\item{method}{The method to be used for prevalence computation  (default : General , alternatives are FlankingGeneral 
+, Linear, FlankingLinear.)}
 
 \item{tumoursamples}{The list of tumour samples to consider for the prevalence
 computation. This samples should be present as column header in the data frames 
@@ -48,9 +48,20 @@ computation. This samples should be present as column header in the data frames
 
 \item{region}{The region of the genome to consider in the format chrom:start-end 
 e.g "chr22:179800-98767}
+
+\item{min_cells}{Minimum number of cells (default 2)  In case the estimated number of cells sequenced at the locus of the mutation is less than min_cells, NA is returned.}
+
+\item{min_alleles}{Minimum number of alleles (default 4). In case the estimated number of alleles sequenced at the locus of the mutation is less than min_alleles, NA is returned.}
 }
 \value{
-A data frame containing the cellular prevalence of each mutation at each tumour sample.
+A data frame containing :
+ \describe{
+       \item{}{Column 1 to NbFirstcolumn of the input data frame snp_allelecount_df. 
+       This will generally include the chromosome and the position of the mutation plus
+       any other column you will like to report in the prevalence (e.g REF, ALL, ...) }
+        \item{}{One column per tumour sample reporting the prevalences of the mutation 
+        at each samples}
+     }
 }
 \description{
 This is a generic function computing the cellular prevalence of somatic mutations in
@@ -66,13 +77,28 @@ data(simpleExample2)
 attach(simpleExample2)
 prevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df)
 
-#Example 2 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
+
+# Example 2: Running a case study as illustrated in the accompagning paper. Available case studies : A, B, C, 1 ,2, . . ., 9
+data(CaseStudy_6)
+cs=CaseStudy_6
+prevalence_CaseStudy6=getPrevalence(cs$snp_allelecount_df, cs$ref_allelecount_df, cs$phasing_association_df, cs$major_copynumber_df,cs$minor_copynumber_df,cs$normalfraction_df)
+
+data(CaseStudy_A)
+attach(CaseStudy_A)
+prevalence_CaseStudy_A=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df)
+print(prevalence_CaseStudy_A)
+# 	Chrom  End IsGermline   Tumour1
+# somaticM  chr3 1000          0 0.6666667
+
+
+#Example 3 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
 
 data("chr15_11152")
 attach(chr15_11152)
 masterprevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6, region="chr15:50000000-80000000")
 
-# Example 3 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample
+
+# Example 4 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample
 
 #Empty dataframe
 snpcount_df=as.data.frame(matrix(ncol=4,nrow=2))
@@ -98,7 +124,7 @@ normalfraction_df["Tumour1"] = c(0.2,0.2)
 phasing_association_df = as.data.frame(matrix(ncol=1,nrow=1))
 colnames(phasing_association_df) = c("PhasedGermline")
 rownames(phasing_association_df) = c("mutation1")
-phasing_association_df["mutation1","PhasedGermlines"] = "mutation2"
+phasing_association_df["mutation1","PhasedMutations"] = "mutation2"
 
 #Computing the prevalence
 prevalence_df=getPrevalence(snpcount_df, refcount_df, phasing_association_df, major_cn_df, minor_cn_df,normalfraction_df)

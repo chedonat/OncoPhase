@@ -6,7 +6,16 @@
 \alias{OncoPhase-package}
 \title{OncoPhase package for somatic mutation cellular prevalence estimation using haplotype phasing}
 \description{
-The main functions for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. See the examples at \code{\link{getPrevalence}} for basic steps.
+The main functions for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. 
+See the examples at \code{\link{getPrevalence}} for basic steps.
+}
+\details{
+Input data for simple case studies as the ones illustrated in the accompagning paper can be generated 
+with the function \code{\link{build_casestudy}}.
+
+The package include experimental data for chromosome 15 and 22 for two patients of a parallele study.
+ (see \code{\link{chr15_OP1019}} and \code{\link{chr22_11152}} )
+
 For more detailed information on usage, see the package vignette, by typing
 \code{vignette("OncoPhase")}. All support questions should be emailed to  the authors.
 }
