@@ -24,8 +24,15 @@ allele supporting the reference sequence  of  the somatic mutation}
 of cells affected by the CNV (1- normal genotype cell fraction)}
 
 \item{minor_cn}{: Minor copy number (or a vector of copy number if multiple tumor samples)
-at the locus of the mutation 
-@param depthOfCoverage : Coverage depth (or a vector of depth coverage  if multiple tumor samples) at the locus of the mutation. If not provided the exact value of the counts passed as parameters are considered. If provided then a binomial sampling with replacement is performed to generate the counts. For the germline, the sampling is done with the parameters p=lambda_G / (lambda_G + mu_G) and N= depthOfCoverage and will yield  the count of allele supporting the variant sequence of the germline and the count of allele supporting the reference.  The same sampling is  apply to the somatic mutation  with the parameters : p=lambda_S/(lambda_S + mu_S) and N = depthOfCoverage.}
+at the locus of the mutation}
+
+\item{depthOfCoverage}{: Coverage depth (or a vector of depth coverage  if multiple tumor samples) 
+at the locus of the mutation. If not provided the exact value of the counts passed as parameters 
+are considered. If provided then a binomial sampling with replacement is performed to generate the 
+counts. For the germline, the sampling is done with the parameters p=lambda_G / (lambda_G + mu_G) 
+and N= depthOfCoverage and will yield  the count of allele supporting the variant sequence of the 
+germline and the count of allele supporting the reference.  The same sampling is  apply to the 
+somatic mutation  with the parameters : p=lambda_S/(lambda_S + mu_S) and N = depthOfCoverage.}
 
 \item{major_cn:}{Major copy number (or a vector of copy number if multiple tumor samples)
 at the locus of the mutation}
