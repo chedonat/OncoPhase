@@ -93,9 +93,13 @@ print(prevalence_CaseStudy_A)
 
 #Example 3 : Computing somatic mutation cellular prevalence on chromosome 15 of  patient 11152 (data retrieved from a parallele study)
 
-data("chr15_11152")
-attach(chr15_11152)
-masterprevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6, region="chr15:50000000-80000000")
+data("chr15_OP1019")
+ds=chr15_OP1019
+masterprevalence_df=getPrevalence(ds$snp_allelecount_df, ds$ref_allelecount_df, ds$phasing_association_df, ds$major_copynumber_df,ds$minor_copynumber_df,ds$normalfraction_df,nbFirstColumns=6)
+
+data("chr10_11152")
+attach(chr10_11152)
+masterprevalence_df=getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df,nbFirstColumns=6, region="chr15:50000000-180000000")
 
 
 # Example 4 : Creating a simple example with one somatic mutation and one germline mutation on a single tumour sample

@@ -1,7 +1,9 @@
-#' chr15_OP1019 : chromosome 15 of Patient OP1019.
+#' chr10_OP1019 : chromosome 10 of Patient OP1019.
 #'
 #' A dataset containing Allele counts, haplotype phaisng and copy number information on chromosome 10 
 #' of Patient OP1019 of the SOX2 Study.
+#'
+#'Also available on the same patient : chr10, chr15, chr18 and chr22
 #'
 #' @format Contains the following data :  :
 #' \describe{
@@ -24,12 +26,15 @@
 #'   \item{minor_copynumber_df}{A data frame containing the minor copy number of the mutations at each tumours/samples}
 #'   \item{minor_copynumber_df}{A data frame containing the normal cell contamination rate for each mutations  at each tumours/samples}
 #' }
-"chr15_OP1019"
+"chr10_OP1019"
 
 #' chr22_11152 : chromosome 22 of Patient 11152.
 #'
 #' A dataset containing Allele counts, haplotype phaisng and copy number information on chromosome 22 
 #' of Patient 11152 of the SOX2 Study.
+#'
+#' Also available on the same patient : chr10, chr15, chr18 and chr22
+#'
 #'
 #' @format Contains the following data :  :
 #' \describe{

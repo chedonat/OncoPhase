@@ -32,5 +32,8 @@ chr22_11152
 A dataset containing Allele counts, haplotype phaisng and copy number information on chromosome 22 
 of Patient 11152 of the SOX2 Study.
 }
+\details{
+Also available on the same patient : chr10, chr15, chr18 and chr22
+}
 \keyword{datasets}
 
