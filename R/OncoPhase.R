@@ -937,10 +937,10 @@ build_casestudy<-function(lambda_G, mu_G,lambda_S, mu_S, phi_G, major_cn, minor_
   minor_copynumber_df = snp_allelecount_df[paste("Tumour",1:nbTumour,sep="")]
   normalfraction_df = snp_allelecount_df[paste("Tumour",1:nbTumour,sep="")]
   
-  lambda_G_prime=vector("numeric",3)
-  lambda_S_prime=vector("numeric",3)
-  mu_G_prime =vector("numeric",3)
-  mu_S_prime =vector("numeric",3)
+  lambda_G_prime=vector("numeric",nbTumour)
+  lambda_S_prime=vector("numeric",nbTumour)
+  mu_G_prime =vector("numeric",nbTumour)
+  mu_S_prime =vector("numeric",nbTumour)
   
   
   
