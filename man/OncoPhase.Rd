@@ -4,20 +4,19 @@
 \name{OncoPhase}
 \alias{OncoPhase}
 \alias{OncoPhase-package}
-\title{OncoPhase package for somatic mutation cellular prevalence estimation using haplotype phasing}
+\title{OncoPhase package for somatic mutations cellular prevalence estimation using haplotype phasing}
 \description{
-The main functions for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. 
-See the examples at \code{\link{getPrevalence}} for basic steps.
+The main function for somatic mutation cellular prevalence computation is  \code{\link{getPrevalence}}. 
+See the manual and examples at \code{\link{getPrevalence}} for more details.
 }
 \details{
-Input data for simple case studies as the ones illustrated in the accompagning paper can be generated 
-with the function \code{\link{build_casestudy}}.
+Input data for simple case studies can be generated  with the function \code{\link{build_casestudy}}.
 
-The package include experimental data for chromosome 15 and 22 for two patients of a parallele study.
- (see \code{\link{chr15_OP1019}} and \code{\link{chr22_11152}} )
+The package include experimental data for chromosome 10, 15, 18  and 22 for two patients retrieved from a parallel study.
+ (see for example  \code{\link{chr15_OP1019}} and \code{\link{chr22_11152}} )
 
 For more detailed information on usage, see the package vignette, by typing
-\code{vignette("OncoPhase")}. All support questions should be emailed to  the authors.
+\code{vignette("OncoPhase")}. All support questions should be emailed to the authors.
 }
 \author{
 Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
@@ -29,7 +28,7 @@ OncoPhase: A package for computing Somatic Mutation cellular Prevalence in cance
 
 OncoPhase reference:
 
-SOX2 paper. Detail of the reference to be added
+” Ovarian cancer haplotype sequencing reveals ubiquitous SOX2 overexpression in the premalignant fallopian tube epithelium”
 }
 \keyword{package}
 
