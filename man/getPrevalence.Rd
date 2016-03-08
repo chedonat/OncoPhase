@@ -5,9 +5,9 @@
 \title{Somatic mutations cellular prevalence using haplotype phasing.}
 \usage{
 getPrevalence(snp_allelecount_df, ref_allelecount_df, phasing_association_df,
-  major_copynumber_df, minor_copynumber_df, normalfraction_df,
-  nbFirstColumns = 3, method = "General", tumoursamples = NULL,
-  region = NULL, min_cells = 2, min_alleles = 4)
+  major_copynumber_df, minor_copynumber_df, nbFirstColumns = 3,
+  method = "PhasedSNP", tumoursamples = NULL, region = NULL,
+  min_cells = NULL, min_alleles = NULL)
 }
 \arguments{
 \item{snp_allelecount_df}{A data frame containing for each mutation the  allelic 
@@ -27,14 +27,10 @@ a colon separated list of germline SNP phased to it.}
 \item{minor_copynumber_df}{A data frame containing for each mutation the minor
 chromosomal copy number at each tumor samples.}
 
-\item{normalfraction_df}{A data frame containing for each mutation the fraction of
-normal cell contamination at each tumor samples of the study.}
-
 \item{nbFirstColumns}{Number of first columns in snp_allelecount_df to reproduce in
 the output dataframe e.g: Chrom, Pos, Vartype.}
 
-\item{method}{The method to be used for prevalence computation  (default : General , alternatives methods  are FlankingGeneral 
-, Linear, FlankingLinear.)}
+\item{method}{The method to be used for prevalence computation  (default : PhasedSNP , alternatives methods  are PhasedSNPGeneral, FlankingSNP,FlankingSNPGeneral)}
 
 \item{tumoursamples}{: The list of tumor samples to consider for the prevalence
   snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df
@@ -48,6 +44,9 @@ e.g "chr22:179800-98767}
 \item{min_cells}{Minimum number of cells (default 2). In case the estimated number of cells sequenced at the locus of the mutation is less than min_cells, NA is returned.}
 
 \item{min_alleles}{Minimum number of alleles. (default 4). In case the estimated number of alleles sequenced at the locus of the mutation is less than min_alleles, NA is returned.}
+
+\item{normalfraction_df}{A data frame containing for each mutation the fraction of
+normal cell contamination at each tumor samples of the study. Used only if the method is "PhasedSNPgeneral"}
 }
 \value{
 A data frame containing :
