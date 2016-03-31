@@ -1,7 +1,7 @@
 # OncoPhase
 OncoPhase: Quantification of somatic mutation cellular prevalence using phase information.
 
-Developed in the Ovarian Cancer Cell Laboratory, University of Oxford.
+Developed in the Ovarian Cancer Cell Laboratory, University of Oxford, United Kingdom.
 
 This package offers a direct method to quantify the cellular
 prevalence of single nucleotide variants (SNVs) using phase information. The
@@ -31,8 +31,8 @@ install_github("chedonat/OncoPhase")
 
 library(OncoPhase)
 
-3. Have a look at the package help
-4. 
+3- Have a look at the package help
+
 help(OncoPhase)
 
 
