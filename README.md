@@ -18,16 +18,20 @@ To install OncoPhase directly from this repository using the library devtools, p
 
 
 1- If you dont already have devtools installed, proceed to its installation : 
+
 install.packages("devtools")
+
 library(devtools)
 
 
 2- Download and install OncoPhase :
 
 install_github("chedonat/OncoPhase")
+
 library(OncoPhase)
 
 3. Have a look at the package help
+4. 
 help(OncoPhase)
 
 
