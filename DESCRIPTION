@@ -1,14 +1,24 @@
 Package: OncoPhase
 Type: Package
-Title: Somatic Mutation Cellular Prevalence
-Version: 1.0
-Date: 2016-02-04
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: This package compute somatic mutations cellula prevalence using
-    haplotype phasing,
-Authors@R: person("Donatien", "Chedom", email = "donatien.chedom@gmail.com",
-  role = c("aut", "cre"))
-License: What license is it under?
+Title: SOMATIC MUTATION CELLULAR PREVALENCE COMPUTATION
+Version: 0.1
+Date: 2016-02-25
+Authors@R: c(
+            person("Donatien", "Chedom-Fotso", email = "donatien.chedom@well.ox.ac.uk", role = c("aut", "cre")),
+            person("Ahmed", "Ahmed", email = "ahmed.ahmed@obs-gyn.ox.ac.uk", role = c("aut")),
+            person("Christopher", "Yau", email = "cyau@well.ox.ac.uk", role = c("aut"))
+            )
+Description: This package offers a direct method to quantify the cellular
+    prevalence of single nucleotide variants (SNVs) using phase information. The
+    method utilizes three sources of information: the phasing information, the copy
+    number variation, and the allele counts. The method is demonstrated to bring
+    more capabilities in Cancer Genomic and allows computing the cell prevalence of
+    a mutation in various cancer contexts.
+LazyData: TRUE
+License: GPL-2
+Imports:
+    limSolve
+Suggests:
+#VignetteBuilder: knitr
 RoxygenNote: 5.0.1
-VignetteBuilder: knitr
+

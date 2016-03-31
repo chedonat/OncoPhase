@@ -2,9 +2,11 @@
 
 export(buildModelMatrices)
 export(build_casestudy)
-export(getModelPrevalence)
 export(getPhasedSNPPrevalence)
+export(getPhasedSNPPrevalenceGeneral)
+export(getPhasedSNPPrevalenceMatrix)
 export(getPrevalence)
-export(getPrevalence_General)
+export(getPrevalenceLinear)
 export(getPrevalence_PhasedSNP)
 export(numeric_column)
+import(limSolve)

@@ -5,7 +5,7 @@
 \title{Build the input data matrices for a case study}
 \usage{
 build_casestudy(lambda_G, mu_G, lambda_S, mu_S, major_cn, minor_cn,
-  depthOfCoverage = NULL)
+  cnv_fraction = NULL, depthOfCoverage = NULL)
 }
 \arguments{
 \item{lambda_G}{: A count  or a vector of counts (In the case of  multiple tumor samples) of 
@@ -15,10 +15,10 @@ alleles supporting the variant sequence of  the Germline SNP}
 alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{lambda_S}{: A count or a vector of counts (In the case of  multiple tumor samples)  of 
-allele supporting the variant sequence of  the somatic mutation}
+alleles supporting the variant sequence of  the somatic mutation}
 
 \item{mu_S}{: A count or a vector of counts (In the case of  multiple tumor samples)  of 
-allele supporting the reference sequence  of  the somatic mutation}
+alleles supporting the reference sequence  of  the somatic mutation}
 
 \item{minor_cn}{: Minor copy number (or a vector of copy number if multiple tumor samples)
 at the locus of the mutation}
@@ -31,8 +31,8 @@ and N= depthOfCoverage and will yield  the count of allele supporting the varian
 germline and the count of allele supporting the reference.  The same sampling is  apply to the 
 somatic mutation  with the parameters : p=lambda_S/(lambda_S + mu_S) and N = depthOfCoverage.}
 
-\item{phi_G}{: Estimated fraction (or a vector of fractions if multiple tumor samples) 
-of cells affected by the CNV (1- normal genotype cell fraction). Used only in the case of using the PhasedSNPgeneral method}
+\item{cnv_fraction:}{Estimated fraction (or a vector of fractions if multiple tumor samples) 
+of cells affected by the CNV (1- normal genotype cell fraction). Used only in the case of  the PhasedSNPgeneral method}
 
 \item{major_cn:}{Major copy number (or a vector of copy number if multiple tumor samples)
 at the locus of the mutation}
@@ -40,23 +40,23 @@ at the locus of the mutation}
 \value{
 A list containing the following data frames:
  \describe{
-       \item{snp_allelecount_df}{A data frame containing the  count of allele at each tumour samples suporting the variant sequence at the somatic and germline  mutations. Chrom is set to chr3, Position of the germline and somatic mutations are respectively set to 100 and 1000}
-       \item{ref_allelecount_df}{A data frame containing the  count of allele  at each tumour samples  suporting the reference sequence at the somatic and germline  mutation. Chrom is set to chr3, Position of the germline and somatic mutations are respectively set to 100 and 1000}
+       \item{snp_allelecount_df}{A data frame containing the  count of alleles at each tumour samples supporting the variant sequence at the somatic and germline  mutations. Chrom is set to chr3, Position of the germline and somatic mutations are respectively set to 100 and 1000}
+       \item{ref_allelecount_df}{A data frame containing the  count of alleles  at each tumour sample  supporting the reference sequence at the somatic and germline  mutation. Chrom is set to chr3, Position of the germline and somatic mutations are respectively set to 100 and 1000}
        \item{phasing_association_df}{A data frame containing the phasing association between the somatic and the germline mutation}
-        \item{major_copynumber_df}{A data frame containing the major copy number  at each tumour samples  at the mutation locus}
-        \item{minor_copynumber_df}{A data frame containing the minor copy number  at each tumour samples  at the mutation locus}
-       \item{normalfraction_df}{A data frame containing the proportion of cells with a normal genotype  at each tumour samples. Present only if the method is "PhasedSNPgeneral" }
+        \item{major_copynumber_df}{A data frame containing the major copy number  at each tumour sample  at the mutation locus}
+        \item{minor_copynumber_df}{A data frame containing the minor copy number  at each tumour sample  at the mutation locus}
+       \item{normalfraction_df}{A data frame containing the proportion of cells with a normal genotype  at each tumour sample. Present only if the method is "PhasedSNPgeneral" }
      }
 }
 \description{
-This is a generic function to automatically build the five input data frame (snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,normalfraction_df if method is PhasedSNPGeneral) for a case study with one somatic mutation, one germline mutation and one or more tumor sample.
+This is a generic function to automatically build the five input data frame (snp_allelecount_df, ref_allelecount_df, phasing_association_df, major_copynumber_df,minor_copynumber_df,CNVfraction_df if method is PhasedSNPGeneral) for a case study with one somatic mutation, one germline mutation and one or more tumor sample.
 }
 \examples{
 
 #Example 1
 # We reproduce here the case study No 6 of the paper
  #Build the input data 
- cs = build_casestudy(lambda_G=16, mu_G=8,lambda_S=14,mu_S=10,phi_G=4/8,major_cn=3,minor_cn=1  )
+ cs = build_casestudy(lambda_G=16, mu_G=8,lambda_S=14,mu_S=10,cnv_fraction=4/8,major_cn=3,minor_cn=1  )
  #Run the case
 prevalence=getPrevalence(cs$snp_allelecount_df, cs$ref_allelecount_df, cs$phasing_association_df,
                          cs$major_copynumber_df,cs$minor_copynumber_df,cs$normalfraction_df)
@@ -69,7 +69,7 @@ print(prevalence)
 #Example 2
 #Multiple tumours and stochastic generation of the counts.
 CaseStudy_10 = build_casestudy(lambda_G=c(8,12,10), mu_G=c(5,4,8),lambda_S=c(3,6,10),mu_S=c(10,8,12),
-major_cn=c(2,2,3),minor_cn=c(2,1,2) , depthOfCoverage = c(60,100,200))
+major_cn=c(2,2,3),minor_cn=c(1,1,2) , depthOfCoverage = c(60,100,200))
 
 cs = CaseStudy_10
 prevalence=getPrevalence(cs$snp_allelecount_df, cs$ref_allelecount_df, cs$phasing_association_df,

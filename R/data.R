@@ -28,10 +28,10 @@
 #' }
 "chr10_OP1019"
 
-#' chr22_11152 : chromosome 22 of Patient 11152.
+#' chr22_OP1019 : chromosome 22 of Patient OP1019.
 #'
 #' A dataset containing allele counts, haplotype phasing and copy number information on chromosome 22 
-#' of Patient 11152 of the SOX2 Study.
+#' of Patient OP1019 of the SOX2 Study.
 #'
 #' Also available on the same patient : chr10, chr15, chr18 and chr22
 #'
@@ -57,5 +57,5 @@
 #'   \item{minor_copynumber_df}{A data frame containing the minor copy number of the mutations at each tumor samples }
 #'   \item{minor_copynumber_df}{A data frame containing the normal cell contamination rate for each mutations  at each tumor samples }
 #' }
-"chr22_11152" 
+"chr22_OP1019" 
 
