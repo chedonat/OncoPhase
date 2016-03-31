@@ -2,7 +2,15 @@
 OncoPhase: Quantification of somatic mutation cellular prevalence using phase information
 
 
-Download and install the package.
+This package offers a direct method to quantify the cellular
+prevalence of single nucleotide variants (SNVs) using phase information. The
+method utilizes three sources of information: the phasing information, the copy
+number variation, and the allele counts. The method is demonstrated to bring
+more capabilities in Cancer Genomic and allows computing the cell prevalence of
+a mutation in various cancer contexts.
+
+
+To Download and install the package.
 
 The library devtools offer a command to
 quickly install any R package deposited in Github.
