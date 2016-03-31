@@ -1,6 +1,5 @@
 # OncoPhase
-OncoPhase: Quantification of somatic mutation cellular prevalence using phase information
-
+OncoPhase: Quantification of somatic mutation cellular prevalence using phase information.
 Developed in the Ovarian Cancer Cell Laboratory, University of Oxford.
 
 This package offers a direct method to quantify the cellular
