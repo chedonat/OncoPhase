@@ -308,7 +308,7 @@ getPrevalence_Matrice<-function( snp_allelecount_df, ref_allelecount_df, major_c
 #' print(prevalence)
 #' #Sample_1 
 #' #0.75   
-#' The above example  gives the same  prevalence with modeFlankingSNP but not with mode SNVOnly
+#' #The above example  gives the same  prevalence with modeFlankingSNP but not with mode SNVOnly
 #' prevalence=getPrevalence(lambda_S=14,mu_S=10,major_cn=3,minor_cn=1,lambda_G=16, mu_G=8 ,mode="FlankingSNP")
 #' print(prevalence)
 #' #Sample_1 
