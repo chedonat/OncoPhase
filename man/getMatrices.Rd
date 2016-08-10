@@ -4,7 +4,8 @@
 \alias{getMatrices}
 \title{Generate the matrices C, W and M from a set of parameters.}
 \usage{
-getMatrices(lambda_S, mu_S, major_cn, minor_cn, lambda_G, mu_G, context)
+getMatrices(lambda_S, mu_S, major_cn, minor_cn, lambda_G, mu_G, context,
+  LocusCoverage = 1)
 }
 \arguments{
 \item{lambda_S}{: A count of 
@@ -33,7 +34,7 @@ This is a generic function to generate the matrices of the linear system (see th
 }
 \examples{
 
-Matrices = getMatrices(8, 5,3,10,2,1,"C1")
+Matrices = getMatrices(8, 5,2,1,3,10,"C1")
  
  print(Matrices)
 # $context

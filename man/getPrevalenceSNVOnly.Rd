@@ -34,7 +34,7 @@ Prevalences = getPrevalenceSNVOnly(3,10,2,1,"C2",2)
  
 print(Prevalences)
 #Germ      Alt     Both residual 
-#0.47     0.24     0.29     0.00 
+#0.60     0.31     0.09     0.00 
 
 }
 \seealso{

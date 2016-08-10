@@ -5,7 +5,7 @@
 \title{Compute the cellular prevalence of each group of cells}
 \usage{
 getPrevalenceLinear(lambda_S, mu_S, major_cn, minor_cn, lambda_G, mu_G, context,
-  Trace = FALSE)
+  Trace = FALSE, LocusCoverage = 1)
 }
 \arguments{
 \item{lambda_S}{: A count of 
@@ -34,7 +34,7 @@ This is a generic function to compute the detailed prevalence of a single mutati
 }
 \examples{
 
-Prevalences = getPrevalenceLinear(8, 5,3,10,2,1,"C1")
+Prevalences = getPrevalenceLinear(8, 5,2,1,3,10,"C1")
  
   print(Prevalences)
 # Germ  Alt Both 
