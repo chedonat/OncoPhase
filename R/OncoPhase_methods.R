@@ -49,8 +49,8 @@ remove_outliers <- function(x, na.rm = TRUE, ...) {
 #' @param min_cells Minimum number of cells (default 2). In case the estimated number of cells sequenced at the locus of the mutation is less than min_cells, NA is returned.
 #' @param min_alleles Minimum number of alleles. (default 4). In case the estimated number of alleles sequenced at the locus of the mutation is less than min_alleles, NA is returned.
 #' @param detail when set to TRUE, a detailed output is generated containing, the context and the detailed prevalence for each group of cells (germline cells, cells affected by one of the two genomic alterations (SNV or CNV) but not both, cells affected by  by both copynumber alteration and SNV ). Default : TRUE.
-#' @param LocusCoverage when set to true, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G. mu_S >= mu_G and lambda_S + mu_S = lambda_G + mu_G. Not used if mode=SNVOnly,  Default = FALSE 
-#' @param SomaticCountAdjust when set to 1, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G and  mu_S >= mu_G. If set to 2, in addition to the previous adjustment,  the criteria lambda_S + mu_S ~ lambda_G + mu_G should also be met. mu_S is then adjusted to lambda_G + mu_G  - mu_S when its tested to not follow Poiss(lambda_G + mu_G  - mu_S). Not used if mode=SNVOnly,  Default = 0.
+#' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.
+#' @param SomaticCountAdjust when set to TRUE, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G, mu_S >= mu_G and lambda_S + mu_S ~ Poiss(lambda_G + mu_G). Not used if mode=SNVOnly,  Default = TRUE.
 #' 
 #' 
 #' @return A data frame containing :
@@ -90,7 +90,7 @@ remove_outliers <- function(x, na.rm = TRUE, ...) {
 #' 
 #'@seealso \code{\link{getPrevalence}}
 #' @export
-getPrevalenceMultiSamples<-function(snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,mode="PhasedSNP",cnv_fraction=NULL, phasing_association_df=NULL,NormalcellContamination_df=NULL,tumoursamples=NULL,  nbFirstColumns=3, region=NULL,detail=TRUE,  LocusRadius = 10000,SameTumour=TRUE,LocusCoverage=1,ProgressOutputs=T,SomaticCountAdjust=0)
+getPrevalenceMultiSamples<-function(snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,mode="PhasedSNP",cnv_fraction=NULL, phasing_association_df=NULL,NormalcellContamination_df=NULL,tumoursamples=NULL,  nbFirstColumns=3, region=NULL,detail=TRUE,  LocusRadius = 10000,SameTumour=TRUE,LocusCoverage=TRUE,ProgressOutputs=T,SomaticCountAdjust=TRUE)
 {
   
   
@@ -533,9 +533,8 @@ getPrevalenceMultiSamples<-function(snp_allelecount_df, ref_allelecount_df, majo
 #' @param mode The mode under which the prevalence is computed  (default : PhasedSNP , alternatives methods  are FlankingSNP, OptimalSNP,and SNVOnly).  Can also be provided as a numeric 0=SNVOnly, 1= PhasedSNP, 2=FlankingSNP and 3 = OptimalSNP
 #' #@param formula The formula used to compute the prevalence. can be either "matrix" for the linear equations or "General" for the exact allele count cases. Default : Matrix
 #' @param detail when set to TRUE, a detailed output is generated containing, the context and the detailed prevalence for each group of cells (germline cells, cells affected by one of the two genomic alterations (SNV or CNV) but not both, cells affected by  by both copynumber alteration and SNV ). Default : TRUE.
-#' @param LocusCoverage when set to true, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G. mu_S >= mu_G and lambda_S + mu_S = lambda_G + mu_G. Not used if mode=SNVOnly,  Default = FALSE.
-#' 
-#' @param SomaticCountAdjust when set to 1, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G and  mu_S >= mu_G. If set to 2, in addition to the previous adjustment,  the criteria lambda_S + mu_S ~ lambda_G + mu_G should also be met. mu_S is then adjusted to lambda_G + mu_G  - mu_S when its tested to not follow Poiss(lambda_G + mu_G  - mu_S). Not used if mode=SNVOnly,  Default = 0.
+#' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.
+#' @param SomaticCountAdjust when set to TRUE, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G, mu_S >= mu_G and lambda_S + mu_S ~ Poiss(lambda_G + mu_G). Not used if mode=SNVOnly,  Default = TRUE.
 #' 
 #' @return A data frame containing :
 #'  \describe{
@@ -581,7 +580,7 @@ getPrevalenceMultiSamples<-function(snp_allelecount_df, ref_allelecount_df, majo
 #' 
 #'@seealso \code{\link{getPrevalence}}
 #' @export
-getPrevalenceSingleSample<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=1,SomaticCountAdjust=0)
+getPrevalenceSingleSample<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=TRUE,SomaticCountAdjust=TRUE)
 {
   
 #Check the compulsory columns
@@ -694,8 +693,8 @@ getPrevalenceSingleSample<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0
 #' @param Trace if set to TRUE, print the trace of the computation.    
 #'  
 #' @return   The cellular prevalence if detail =0, a detailed output if detail = 1, and a condensed output if detail =2. See the usage of the parameter detail above.
-#' @param LocusCoverage when set to true, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G. mu_S >= mu_G and lambda_S + mu_S = lambda_G + mu_G. Not used if mode=SNVOnly,  Default = FALSE 
-#' @param SomaticCountAdjust when set to 1, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G and  mu_S >= mu_G. If set to 2, in addition to the previous adjustment,  the criteria lambda_S + mu_S ~ lambda_G + mu_G should also be met. mu_S is then adjusted to lambda_G + mu_G  - mu_S when its tested to not follow Poiss(lambda_G + mu_G  - mu_S). Not used if mode=SNVOnly,  Default = 0.
+#' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.
+#' @param SomaticCountAdjust when set to 1, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G, mu_S >= mu_G and lambda_S + mu_S ~ Poiss(lambda_G + mu_G). Not used if mode=SNVOnly,  Default = 1.
 #'      
 #'     
 #'      
@@ -768,7 +767,7 @@ getPrevalenceSingleSample<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0
 #' 
 #' @seealso \code{\link{getPrevalence}},  \code{\link{getPhasedSNPPrevalenceGeneral}},   \code{\link{getPrevalenceLinear}}, \code{\link{getPrevalenceSNVOnly}}                                                 
 #' @export
-getPrevalence<-function(lambda_S,mu_S,major_cn,minor_cn, lambda_G=NULL, mu_G=NULL,  detail=0, mode="PhasedSNP",Trace=FALSE,SameTumour=TRUE,LocusCoverage=1,SomaticCountAdjust=0)
+getPrevalence<-function(lambda_S,mu_S,major_cn,minor_cn, lambda_G=NULL, mu_G=NULL,  detail=0, mode="PhasedSNP",Trace=FALSE,SameTumour=TRUE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE)
   {
   
 
@@ -815,7 +814,7 @@ getPrevalence<-function(lambda_S,mu_S,major_cn,minor_cn, lambda_G=NULL, mu_G=NUL
 }
 
 #' @export
-getPhasedSNPPrevalence<-function( lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G, detail=0,Trace=FALSE,LocusCoverage=1,SomaticCountAdjust=0)
+getPhasedSNPPrevalence<-function( lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G, detail=0,Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE)
   {
   
   
@@ -915,7 +914,7 @@ getPhasedSNPPrevalence<-function( lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G
   
 
 #' @export
-getFlankingSNPPrevalence<-function( lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G, detail=FALSE,Trace=False,SameTumour=TRUE,LocusCoverage=1,SomaticCountAdjust=0)
+getFlankingSNPPrevalence<-function( lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G, detail=FALSE,Trace=False,SameTumour=TRUE,LocusCoverage=1,SomaticCountAdjust=TRUE)
   {
   
   #For each case, we compute the prevalence twice. By considering the somatic to be phased to the germline SNP or phased with the alternative chromosome harboring the reference of the Germline. The latter is achieved just by 
@@ -1021,7 +1020,7 @@ getFlankingSNPPrevalence<-function( lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu
 
 
 #' @export
-getPhasedSNPPrevalence_on_singlemutation<-function(lambda_S,mu_S,major_cn,minor_cn, lambda_G, mu_G, detail=FALSE,Trace=FALSE,LocusCoverage=1,SomaticCountAdjust=0)
+getPhasedSNPPrevalence_on_singlemutation<-function(lambda_S,mu_S,major_cn,minor_cn, lambda_G, mu_G, detail=FALSE,Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE)
   {
   
   
@@ -1031,17 +1030,16 @@ getPhasedSNPPrevalence_on_singlemutation<-function(lambda_S,mu_S,major_cn,minor_
   Prevalence=NA
   DetailedPrevvalence=NA
   
-  if(SomaticCountAdjust>0){
+  if(SomaticCountAdjust){
       if(lambda_S > lambda_G)
         lambda_S=lambda_G
       if(mu_S < mu_G)
         mu_S = mu_G 
+      
+      if(mu_S < qpois(0.001,max(0,mu_G + lambda_G - lambda_S)))
+        mu_S=mu_G + lambda_G - lambda_S
     }
   
-  if(SomaticCountAdjust==2){
-    if(mu_S < qpois(0.001,max(0,mu_G + lambda_G - lambda_S)))
-      mu_S=mu_G + lambda_G - lambda_S
-  }
 
     
     
@@ -1310,21 +1308,32 @@ getSNVOnlyPrevalence_on_singlemutation<-function(lambda_S,mu_S,major_cn,minor_cn
 #' # SNV    2   3    3
 #'  
 #' @export
-getMatrices<-function(lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G,context,LocusCoverage=1){
+getMatrices<-function(lambda_S,mu_S,major_cn,minor_cn,lambda_G, mu_G,context,LocusCoverage=TRUE){
   total_cn = major_cn + minor_cn
   
-  if((LocusCoverage>0)){
-    if(LocusCoverage==1){
-      Locus_Coverage= mu_G+lambda_G
-    }else if (LocusCoverage==2){
-      Locus_Coverage=(mu_G+lambda_G + mu_S +lambda_S) /2
-    }
+#   if((LocusCoverage>0)){
+#     if(LocusCoverage==1){
+#       Locus_Coverage= mu_G+lambda_G
+#     }else if (LocusCoverage==2){
+#       Locus_Coverage=(mu_G+lambda_G + mu_S +lambda_S) /2
+#     }
+# 
+#     omega_G = min(1, lambda_G/Locus_Coverage)
+#     omega_S= min(1, lambda_S/Locus_Coverage)
+#   }else {
+#     if (LocusCoverage!=0)
+#       warnings("\n\n LocusCoverage should be one of 0, 1 or 2. 0 will be considered")
+#     omega_G = lambda_G/(mu_G+lambda_G)
+#     omega_S= lambda_S/(mu_S +lambda_S) 
+#   }
+  
+  
 
+    if(LocusCoverage){
+      Locus_Coverage= mu_G+lambda_G
     omega_G = min(1, lambda_G/Locus_Coverage)
     omega_S= min(1, lambda_S/Locus_Coverage)
   }else {
-    if (LocusCoverage!=0)
-      warnings("\n\n LocusCoverage should be one of 0, 1 or 2. 0 will be considered")
     omega_G = lambda_G/(mu_G+lambda_G)
     omega_S= lambda_S/(mu_S +lambda_S) 
   }

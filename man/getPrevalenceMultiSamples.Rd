@@ -9,8 +9,8 @@ getPrevalenceMultiSamples(snp_allelecount_df, ref_allelecount_df,
   cnv_fraction = NULL, phasing_association_df = NULL,
   NormalcellContamination_df = NULL, tumoursamples = NULL,
   nbFirstColumns = 3, region = NULL, detail = TRUE, LocusRadius = 10000,
-  SameTumour = TRUE, LocusCoverage = 1, ProgressOutputs = T,
-  SomaticCountAdjust = 0)
+  SameTumour = TRUE, LocusCoverage = TRUE, ProgressOutputs = T,
+  SomaticCountAdjust = TRUE)
 }
 \arguments{
 \item{snp_allelecount_df}{A data frame containing for each mutation the  allelic 
@@ -47,9 +47,9 @@ e.g "chr22:179800-98767}
 
 \item{detail}{when set to TRUE, a detailed output is generated containing, the context and the detailed prevalence for each group of cells (germline cells, cells affected by one of the two genomic alterations (SNV or CNV) but not both, cells affected by  by both copynumber alteration and SNV ). Default : TRUE.}
 
-\item{LocusCoverage}{when set to true, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G. mu_S >= mu_G and lambda_S + mu_S = lambda_G + mu_G. Not used if mode=SNVOnly,  Default = FALSE}
+\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.}
 
-\item{SomaticCountAdjust}{when set to 1, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G and  mu_S >= mu_G. If set to 2, in addition to the previous adjustment,  the criteria lambda_S + mu_S ~ lambda_G + mu_G should also be met. mu_S is then adjusted to lambda_G + mu_G  - mu_S when its tested to not follow Poiss(lambda_G + mu_G  - mu_S). Not used if mode=SNVOnly,  Default = 0.}
+\item{SomaticCountAdjust}{when set to TRUE, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G, mu_S >= mu_G and lambda_S + mu_S ~ Poiss(lambda_G + mu_G). Not used if mode=SNVOnly,  Default = TRUE.}
 
 \item{CNVfraction_df, }{If provided, represents a data frame containing for each mutation,  the fraction of
 cells affected by the copy number alteration. Used only if the mode is "PhasedSNP" and formula is "General".}

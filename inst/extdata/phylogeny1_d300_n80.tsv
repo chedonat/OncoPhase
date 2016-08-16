@@ -1,0 +1,6 @@
+mutation_id varcounts_snv refcounts_snv major_cn minor_cn varcounts_snp refcounts_snp
+a 151 152 1 1 151 135
+b 123 176 1 1 161 150
+c 94 209 2 1 176 134
+d 23 283 1 1 155 144
+e 60 228 2 0 174 125

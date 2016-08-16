@@ -5,7 +5,7 @@
 \title{Generate the matrices C, W and M from a set of parameters.}
 \usage{
 getMatrices(lambda_S, mu_S, major_cn, minor_cn, lambda_G, mu_G, context,
-  LocusCoverage = 1)
+  LocusCoverage = TRUE)
 }
 \arguments{
 \item{lambda_S}{: A count of 
