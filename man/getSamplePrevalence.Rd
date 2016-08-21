@@ -55,8 +55,7 @@ This function computes the cellular prevalence of a list of somatic mutations in
  cancer.  The function applies the model to a range of mutations located at a given genomic region or at the whole genome scale. 
 The function invokes \code{\link{getPrevalence}}  to compute the cellular prevalence for each mutation of the list.
 The model computes the prevalence of a somatic
-  mutation relatively to close and eventually phased germline SNP as specified in \code{\link{getPrevalence}}  . 
-Multiple tumor samples can be provided for the prevalence computation <<TO CHECK>>>.
+  mutation relatively to close and eventually phased germline SNP as specified in \code{\link{getPrevalence}}.
 }
 \examples{
 

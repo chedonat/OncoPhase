@@ -22,6 +22,8 @@ alleles supporting the reference sequence  of  the somatic mutation}
 
 \item{sigma}{The parental copy number of  the chromosome harboring the mutation locus. Only needed if the context = C2. Should be either the major copy number either minor copy number}
 
+\item{Trace}{If TRUE, a trace of the execution will be printed}
+
 \item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
 }
 \value{

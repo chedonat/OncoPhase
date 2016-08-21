@@ -90,9 +90,7 @@
 #' @param SomaticCountAdjust when set to 1, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly,  
 #' @param NormalCellContamination If provided, represents the rate of normal cells contaminations in the experiment.  
 #' 
-#' 
-#' 
-#' 
+#'
 #' @return   The cellular prevalence if detail =0, a detailed output if detail = 1, and a condensed output if detail =2. See the usage of the parameter detail above.
 #' 
 #'     
@@ -241,8 +239,7 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
 #'  cancer.  The function applies the model to a range of mutations located at a given genomic region or at the whole genome scale. 
 #' The function invokes \code{\link{getPrevalence}}  to compute the cellular prevalence for each mutation of the list.
 #' The model computes the prevalence of a somatic
-#'   mutation relatively to close and eventually phased germline SNP as specified in \code{\link{getPrevalence}}  . 
-#' Multiple tumor samples can be provided for the prevalence computation <<TO CHECK>>>.
+#'   mutation relatively to close and eventually phased germline SNP as specified in \code{\link{getPrevalence}}. 
 #' 
 #' @param input_df A data frame containing for each mutations :
 #' \describe{

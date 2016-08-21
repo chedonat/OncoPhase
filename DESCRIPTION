@@ -8,12 +8,11 @@ Authors@R: c(
             person("Ahmed", "Ahmed", email = "ahmed.ahmed@obs-gyn.ox.ac.uk", role = c("aut")),
             person("Christopher", "Yau", email = "cyau@well.ox.ac.uk", role = c("aut"))
             )
-Description: This package offers a direct method to quantify the cellular
-    prevalence of single nucleotide variants (SNVs) using phase information. The
+Description: This package offers a direct method to accurately quantify the cellular
+    prevalence of somatic mutations in cancer using phase information. The
     method utilizes three sources of information: the phasing information, the copy
     number variation, and the allele counts. The method is demonstrated to bring
-    more capabilities in Cancer Genomic and allows computing the cell prevalence of
-    a mutation in various cancer contexts.
+    more capabilities in Cancer Genomic.
 LazyData: TRUE
 License: GPL-2
 Imports:

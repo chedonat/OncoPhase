@@ -29,7 +29,7 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{Trace}{Print a trace of the eecution.}
 
-\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.}
+\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
 
 \item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
 }

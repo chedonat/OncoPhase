@@ -26,7 +26,7 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{context}{represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input}
 
-\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.}
+\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
 }
 \value{
 the matrices W, C and M for the linear system of prevalence computation.

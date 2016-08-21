@@ -35,7 +35,7 @@
 #' @author Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
 #' 
 #' @docType package
-#' @name OncoPhase
+#' @name a-OncoPhase
 #' @aliases OncoPhase-package
 #' @keywords package
 #' @import limSolve

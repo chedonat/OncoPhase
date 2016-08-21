@@ -96,13 +96,15 @@ print(prevalence_df)
 data("chr22_XYZ101")
 ds=chr22_XYZ101
 masterprevalence_df=getMultiSamplesPrevalence(ds$snp_allelecount_df, ds$ref_allelecount_df,
-  ds$major_copynumber_df,ds$minor_copynumber_df,phasing_association_df = ds$phasing_association_df, nbFirstColumns=6,detail=FALSE)
+  ds$major_copynumber_df,ds$minor_copynumber_df,phasing_association_df = ds$phasing_association_df,
+   nbFirstColumns=6,detail=FALSE)
 print(head(masterprevalence_df))
 
 data("chr18_XYZ101")
 df=chr18_XYZ101
 masterprevalence_df=getMultiSamplesPrevalence(df$snp_allelecount_df, df$ref_allelecount_df,
- df$major_copynumber_df,df$minor_copynumber_df,phasing_association_df=df$phasing_association_df, nbFirstColumns=6, region="chr18:10000000-80000000")
+ df$major_copynumber_df,df$minor_copynumber_df,phasing_association_df=df$phasing_association_df, 
+ nbFirstColumns=6, region="chr18:10000000-80000000")
 print(head(masterprevalence_df))
 
 

@@ -42,9 +42,9 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{Trace}{if set to TRUE, print the trace of the computation.}
 
-\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.}
+\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
 
-\item{SomaticCountAdjust}{when set to 1, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly,  Default = 1.}
+\item{SomaticCountAdjust}{when set to 1, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly,}
 
 \item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
 }
