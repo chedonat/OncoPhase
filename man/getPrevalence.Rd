@@ -2,29 +2,30 @@
 % Please edit documentation in R/OncoPhase_methods.R
 \name{getPrevalence}
 \alias{getPrevalence}
-\title{Compute cellular prevalence at a single mutation point}
+\title{Computes cellular prevalence at a single mutation point}
 \usage{
-getPrevalence(lambda_S, mu_S, major_cn, minor_cn, lambda_G = NULL,
-  mu_G = NULL, detail = 0, mode = "PhasedSNP", Trace = FALSE,
-  SameTumour = TRUE, LocusCoverage = TRUE, SomaticCountAdjust = TRUE)
+getPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn,
+  varcounts_snp = NULL, refcounts_snp = NULL, detail = 0,
+  mode = "PhasedSNP", Trace = FALSE, LocusCoverage = TRUE,
+  SomaticCountAdjust = TRUE, NormalCellContamination = NULL)
 }
 \arguments{
-\item{lambda_S}{: A count (or a vector of counts  if multiple samples ) of 
+\item{varcounts_snv}{A count (or a vector of counts  if multiple samples ) of 
 alleles supporting the variant sequence of  the somatic mutation}
 
-\item{mu_S}{: A count (or a vector of counts  if multiple samples ) of 
+\item{refcounts_snv}{A count (or a vector of counts  if multiple samples ) of 
 alleles supporting the reference sequence  of  the somatic mutation}
 
 \item{major_cn}{major copy number (or a vector  if multiple samples ) 
 at the locus of the mutation}
 
-\item{minor_cn}{: minor copy number (or a vector  if multiple samples)
+\item{minor_cn}{minor copy number (or a vector  if multiple samples)
 at the locus of the mutation}
 
-\item{lambda_G}{A count (or a vector of counts  if multiple samples) of 
+\item{varcounts_snp}{A count (or a vector of counts  if multiple samples) of 
 alleles supporting the variant sequence of  the Germline SNP}
 
-\item{mu_G}{A count (or a vector of counts  if multiple samples) of 
+\item{refcounts_snp}{A count (or a vector of counts  if multiple samples) of 
 alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{detail}{when set to 0, the function simply output the cellular prevalence of the somatic mutation. if set to 1,  a detailed output is generated containing:
@@ -43,94 +44,33 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.}
 
-\item{SomaticCountAdjust}{when set to 1, lambda_S and mu_S might be adjusted if necessary so that they meet the rules lambda_S <= lambda_G, mu_S >= mu_G and lambda_S + mu_S ~ Poiss(lambda_G + mu_G). Not used if mode=SNVOnly,  Default = 1.}
+\item{SomaticCountAdjust}{when set to 1, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly,  Default = 1.}
+
+\item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
 }
 \value{
 The cellular prevalence if detail =0, a detailed output if detail = 1, and a condensed output if detail =2. See the usage of the parameter detail above.
 }
 \description{
-This is a generic function to compute the cellular prevalence of a somatic mutation point (SNV) using one of the following mode :
- \describe{
-       \item{PhasedSNP}{ The prevalence is computed relatively to a Phased SNP}
-       \item{FlankingSNP}{ The prevalence is computed relatively to a neighbour SNP located on the same locus with the somatic SNV. NA is returned if the prevalence can not be resolved without knowing the phasing information between the SNP and the SNV.}
-       \item{SNVOnly} {The prevalence is computed using only the SNV information without the usage of any nearby SNP}
-    }
-    The methods is  particularly highly accurate when the locus of the SNP is also affected by a somatic copy number alteration (SCNA). The method detect the temporal relationship between the two alterations (C1: SNV occured afterthe SCNA ; C2: SNV occured before the SCNA)  and  compute the detailed prevalence of each of the following group of cells (if detail is set to TRUE) : 
-    #'  \describe{
+This is a generic function to compute the cellular prevalence of a somatic mutation point using OncoPhase method. The method computes the prevalence of the somatic mutation relatively to phased nearby SNPs whose prevalence are known to be 1.  \code{\link{getPrevalence}} requires the allelic-information of the somatic mutation and the aggregated information of its Phased SNP but the function can also be run in the absence of phasing information (FlankingSNP mode) or nearby SNP (SNVOnly mode).
+}
+\details{
+The method particularly exhibits an increase in the accuracy when the locus of the SNP is also affected by a somatic copy number alteration (SCNA). The method detect the temporal relationship between the two alterations (C1: SNV occurred after the SCNA; C2: SNV occurred before the SCNA) and computes the detailed prevalence of each of the following group of cells (if detail is set to TRUE) : 
+      \describe{
        \item{Germ}{ Cells having a germline genotype  at the locus of the SNV. That is No SNV, no SCNA}
        \item{Alt}{ Cells having one alternative of  the two somatic alteration. That is either the SCNA, either the SNV not both.}
-       \item{Germ}{ Cells having both somatic alterations. That is the SNV and the SCNA}
+       \item{Both}{ Cells having both somatic alterations. That is the SNV and the SCNA}
+    }
+
+OncoPhase can be run under three modes:
+
+\describe{
+       \item{PhasedSNP}{ The prevalence is computed relatively to a Phased SNP}
+       \item{FlankingSNP}{ In the absence of phasing information, the prevalence is computed relatively to a neighbor SNP located on the same locus with the somatic SNV. NA is returned if the prevalence cannot be resolved without knowing the phasing information between the SNP and the SNV.}
+       \item{SNVOnly}{The prevalence is computed using only the SNV information without the usage of any nearby SNP}
     }
 }
-\examples{
-#Example 1
-prevalence=getPrevalence(lambda_S=14,mu_S=10,major_cn=3,minor_cn=1,lambda_G=16, mu_G=8  )
-print(prevalence)
-#Sample_1 
-#0.75   
-#The above example  gives the same  prevalence with modeFlankingSNP but not with mode SNVOnly
-prevalence=getPrevalence(lambda_S=14,mu_S=10,major_cn=3,minor_cn=1,lambda_G=16, mu_G=8 ,mode="FlankingSNP")
-print(prevalence)
-#Sample_1 
-#0.75 
-prevalence=getPrevalence(lambda_S=14,mu_S=10,major_cn=3,minor_cn=1,lambda_G=16, mu_G=8 ,mode="SNVOnly")
-print(prevalence)
-#Sample_1 
-#0.79
- 
-#Example 2 Case Study A (see paper)
-prevalence = getPrevalence(lambda_S=6,mu_S=8,major_cn=2,minor_cn=1,lambda_G=8, mu_G=6, detail=1)
-print(prevalence)
-#$Sample_1
-#$Sample_1$Context
-#[1] "C2"
-#
-#$Sample_1$Prevalence
-#[1] 0.66
-#
-#$Sample_1$DetailedPrevalence
-#Germ  Alt Both 
-#0.33 0.33 0.33 
-#
-#$Sample_1$ResidualNorm
-#residual 
-#2e-31 
-#
-#$Sample_1$CondensedPrevalence
-#[1] "C2:0.66:0.33|0.33|0.33:2e-31"
-  
-## The above example is not resolvable without phasing information
- prevalence =  getPrevalence(lambda_S=6,mu_S=8,major_cn=2,minor_cn=1,lambda_G=8, mu_G=6, mode="FlankingSNP",detail=TRUE)
- print(prevalence)
-#Warning message:
-#  In getFlankingSNPPrevalence(lambda_S, mu_S, major_cn, minor_cn,  :
-#                                The prevalence is not resolved without the knowledge of the Phased Germline
-#NA
-## it gives an inaccurate  prevalence under mode "SNVOnly"    
-prevalence= getPrevalence(lambda_S=6,mu_S=8,major_cn=2,minor_cn=1,lambda_G=8, mu_G=6, mode="SNVOnly",detail=0)
-print(prevalence)
-#Sample_1 
-#1 
-#Example 3 Case Study B (see paper) Not resolvable without phasing information
-prevalence=getPrevalence(lambda_S=4,mu_S=8,major_cn=2,minor_cn=0,lambda_G=8, mu_G=4, detail=2)
-print(prevalence)
-#Sample_1 
-# "C2:0.33:0.67|0|0.Prevalence(lambda_S=6,mu_S=8,major_cn=2,minor_cn=1,lambda_G=8, mu_G=6, detail=TRUE,Trace=TRUE )33:5.2e-32" 
-
-#Example 4 Case Study A (see paper) Not resolvable without phasing information
-prevalence = getPrevalence(lambda_S=6,mu_S=8,major_cn=2,minor_cn=1,lambda_G=8, mu_G=6 )
-print(prevalence)      
-#Sample_1 
-#0.66  
-
-#Example 5 We group case study A, B and C above to form a multisample case
-prevalence=getPrevalence(lambda_S=c(6,4,6),mu_S=c(8,8,14),major_cn=c(2,2,2),minor_cn=c(1,0,1),lambda_G=c(8,8,8), mu_G=c(6,4,12) )                   
-print(prevalence)
-#Sample_1 Sample_2 Sample_3 
-#0.66     0.33     0.75   
-
-}
 \seealso{
-\code{\link{getPrevalence}},  \code{\link{getPhasedSNPPrevalenceGeneral}},   \code{\link{getPrevalenceLinear}}, \code{\link{getPrevalenceSNVOnly}}
+\code{\link{getPrevalence}},  \code{\link{getSamplePrevalence}},   \code{\link{getSinglePrevalence}}, \code{\link{getPrevalenceSNVOnly}}
 }
 

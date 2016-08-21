@@ -4,23 +4,25 @@
 \alias{getPrevalenceSNVOnly}
 \title{Compute the cellular prevalence of each group of cells in case of SNVOnly mode}
 \usage{
-getPrevalenceSNVOnly(lambda_S, mu_S, major_cn, minor_cn, context,
-  sigma = NULL, Trace = FALSE)
+getPrevalenceSNVOnly(varcounts_snv, refcounts_snv, major_cn, minor_cn, context,
+  sigma = NULL, Trace = FALSE, NormalCellContamination = NULL)
 }
 \arguments{
-\item{lambda_S}{: A count of 
+\item{varcounts_snv}{A count of 
 alleles supporting the variant sequence of  the somatic mutation}
 
-\item{mu_S}{: A count of 
+\item{refcounts_snv}{A count of 
 alleles supporting the reference sequence  of  the somatic mutation}
 
-\item{minor_cn}{: minor copy number (or a vector of copy number if multiple tumor samples)}
+\item{major_cn}{major copy number at the locus of the mutation}
+
+\item{minor_cn}{minor copy number (or a vector of copy number if multiple tumor samples)}
 
 \item{context}{represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input}
 
 \item{sigma}{The parental copy number of  the chromosome harboring the mutation locus. Only needed if the context = C2. Should be either the major copy number either minor copy number}
 
-\item{major_cn:}{major copy number at the locus of the mutation}
+\item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
 }
 \value{
 A list of the three cellular prevalence of each of the three groups of cells
@@ -31,13 +33,13 @@ This is a generic function to compute the detailed prevalence of a single mutati
 \examples{
 
 Prevalences = getPrevalenceSNVOnly(3,10,2,1,"C2",2)
- 
+
 print(Prevalences)
 #Germ      Alt     Both residual 
 #0.60     0.31     0.09     0.00 
 
 }
 \seealso{
-\code{\link{getPrevalence}},   \code{\link{getMatricesSNVonly}}
+\code{\link{getPrevalence}},   \code{\link{getMatricesSNVOnly}}
 }
 

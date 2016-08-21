@@ -179,12 +179,21 @@ build_sox2Data<-function(Patient, chrom){
 }
 
 
+
+
+
+
+
 cat("\n\n\n Chromosome 10\n\n")
 
-chr10_11152 = build_sox2Data("11152","chr10")
-devtools::use_data(chr10_11152,overwrite=T)
-cs=chr10_11152
+chr10_XYZ101 = build_sox2Data("11152","chr10")
+devtools::use_data(chr10_XYZ101,overwrite=T)
+#cs=chr10_11152
 ####masterprevalence_df=getPrevalenceMultiSamples(cs$snp_allelecount_df, cs$ref_allelecount_df, cs$major_copynumber_df,cs$minor_copynumber_df, phasing_association_df = cs$phasing_association_df,cnv_fraction=cs$CNVFraction_df  ,nbFirstColumns=6, tumoursamples=cs$tumoursamples )
+
+
+stop()
+
 
 cat("\n Header \n\n")
 ####print(head(masterprevalence_df))

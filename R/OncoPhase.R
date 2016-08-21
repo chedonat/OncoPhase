@@ -1,48 +1,46 @@
 ############################################################
 #
-# OncoPhase : files Organization 
+# OncoPhase : Files Organization 
 # data.R - file to generate the Roxygen help documents for the data
-# OncoPhase.R -  this file is the main file of the package
-# OncoPhase_methods.R - This files contains the main implementations of the prevalence computation
-# OncoPhase_EMmodel.R - This files contains the expecattion-maximisation model
-
-
-
+# OncoPhase.R -  Main file of the package (This file)
+# OncoPhase_methods.R  File containing the methods implementation
 
 #Roxigen help for the package (top help)
 
-#' OncoPhase package for somatic mutations cellular prevalence quantification using haplotype phasing
 #' 
-#' The main function for somatic mutation cellular prevalence computation are    \code{\link{getPrevalence}} and  \code{\link{getPrevalenceMultiSamples}} . \code{\link{getPrevalence}}  compute the cellular prevalence at a particular mutations under 4 distincts modes : PhasedSNP, FlankingSNP, OptimalSNP and SNVOnly.  \code{\link{getPrevalenceMultiSamples}}  computes the cellular prevalence of a list of mutations located at a given region of the genome. It can also work on a whole genome scale.
-#' See the manual and examples at \code{\link{getPrevalence}} and  \code{\link{getPrevalenceMultiSamples}}  for more details.
+#' OncoPhase: An R package for somatic mutations cellular prevalence quantification using haplotype phasing.
 #' 
-#'  The function \code{\link{getPrevalenceLinear}} compute the prevalence of a given mutation by directly solving the linear system associated to the model.
+#' OncoPhase uses haplotype phase information to accurately compute mutational cellular prevalence. OncoPhase utilizes three sources of information: the phasing information, the copy number variation, and the allele counts.  It takes as input a combination of phased SNV and SNP allele-specific sequence read counts and local allele-specific copy numbers to determine the proportion of cells harboring the SNV and compute specific and detailed mutation cellular prevalence for each of the following groups of cells: 
 #' 
-#' Input data for simple case studies can be generated with the function \code{\link{build_casestudy}}.
+#'  \describe{
+#'       \item{Germ}{ Germline cells having a normal genotype with no mutations and no copy number alteration at the considered locus. }
+#'       \item{Alt}{ Cells harboring one  alternative between the two somatic alterations. That is either only the SNV if C=1 (SNV occurred before SCNA) or only the SCNA if C=0 (SNV occurred after the SCNA).}
+#'       \item{Both}{ Cells harboring both somatic alterations. That is the SNV and the SCNA}
+#'    }
 #' 
-#' The package include experimental data for chromosome 22 from a  patients retrieved from a parallel clinical study.(see \code{\link{chr22_11152}} )
+#' OncoPhase can compute the mutation cellular prevalence under three different modes : PhasedSNP, FlankingSNP and SNVOnly.
 #' 
-#' For more detailed information on usage, see the package vignette, by typing
+#' 
+#' 
+#' The main functions for somatic mutation cellular prevalence computation are    \code{\link{getPrevalence}} ,   \code{\link{getSamplePrevalence}}  and  \code{\link{getMultiSamplesPrevalence}} .   For more detailed information on usage, see the package vignette, by typing
 #' \code{vignette("OncoPhase")}. All support questions should be emailed to the authors.
-#'
+#' 
 #' @references
-#'
+#' 
 #' OncoPhase reference:
 #' 
-#' OncoPhase: A package for computing Somatic Mutation cellular Prevalence in cancer using haplotype phasing. Bioinformatics 2016. Submitted
-#'
-#' OncoPhase reference:
+#' Chedom-Fotso Donatien, Ahmed Ashour Ahmed, and Christopher Yau. "OncoPhase: Quantification of somatic mutation cellular prevalence using phase information." bioRxiv (2016): 046631.
 #' 
-#' ” Ovarian cancer haplotype sequencing reveals ubiquitous SOX2 overexpression in the premalignant fallopian tube epithelium”
-#'
+#' 
 #' @author Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
 #' 
 #' @docType package
-#' @name aOncoPhase
+#' @name OncoPhase
 #' @aliases OncoPhase-package
 #' @keywords package
 #' @import limSolve
 NULL
+
 
 
 
@@ -64,6 +62,7 @@ hg19_dfsize<-list(chr1=249250621,chr2=243199373,chr3=198022430, chr4=191154276,
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("\n************\nWelcome to OncoPhase package\n************")
+  
 }
 
 # Set up some custom options
@@ -86,6 +85,9 @@ hg19_dfsize<-list(chr1=249250621,chr2=243199373,chr3=198022430, chr4=191154276,
   toset <- !(names(op.OncoPhase) %in% names(op))
   if(any(toset)) options(op.OncoPhase[toset])
   
+  
+  require(limSolve)
+  
   invisible()
 }
 
@@ -96,132 +98,6 @@ hg19_dfsize<-list(chr1=249250621,chr2=243199373,chr3=198022430, chr4=191154276,
 ##########################
 ##########################
 
-
-
-setClass("SampleList" )
-
-setClass("SampleCnvAssociation" )
-
-
-
-Sample <- setClass(
-  #Set the name of the class
-  "Sample",
-  
-  #Define the slots
-  slots = c(
-    name = "character",
-    ID = "character",
-    type = "character",
-    cnvprofile = "character",
-    group = "character",
-    alleletype = "character",
-    variantfiletype = "character",
-    variantfilename = "character",
-    phasinganalysis = "logical",
-    prevalenceanalysis = "logical"
-  ),
-  
-  #Set the defaults values for the slots
-  prototype = list(
-    name = "",
-    type = "tumour",
-    variantfiletype = "varfile",
-    alleletype = "wells",
-    phasinganalysis = TRUE,
-    prevalenceanalysis = TRUE
-  ),
-  
-  # Make a function that can test to see if the data is consistent.
-  # This is not called if you have an initialize function defined!
-  
-  validity = function(object)
-  {
-    if(! object@type %in% c("tumour", "normal")) {
-      return(" Incorrect sample type assigned. The sample type should be one of ")
-    }
-    if(! object@variantfiletype %in% c("varfile", "mastervarfile", "vcf")) {
-      return(" Incorrect sample type assigned. The sample type should be one of varfile, mastervarfile, vcf")
-    }
-    
-  }
-)
-
-
-initsSamples<-function(samples_df)
-{
-  sampleList<-list()
-  
-  # Control of the entries, check the match between the list of properties and the 
-  #column 
-  # of the samples data frame
-  slotList = slotNames("Sample")
-  colList =  colnames(samples_df)
-  
-  presentSlots = intersect(slotList, colList)
-  absentSlots = setdiff(slotList, colList)
-  toignoreFields = setdiff(colList, slotList)
-  
-  if (length(presentSlots)>0){
-    cat("\n\n\t\t The following properties of samples wil be retrieved : \n\t\t")
-    print(presentSlots)
-  }
-  
-  if (length(absentSlots)>0){
-    cat("\n\n\t\t The following properties of samples are not present in the fields 
-        provided : \n\t\t")
-    print(absentSlots)
-  }
-  
-  if (length(toignoreFields)>0){
-    cat("\n\n\t\t The following fields provided ar not part of a sample property : \n\t\t")
-    print(toignoreFields)
-  }
-  
-  if (length(presentSlots)==0){
-    stop("\n\n\t\t Error, No sample property  provided in the data frame, check your input")
-  }
-  
-  
-  
-  
-  
-  
-  
-  for (isample in 1:nrow(samples_df)){
-    newSample=Sample(
-      name = as.character(samples_df[isample,"name"]),
-      ID =  as.character(samples_df[isample,"ID"]),
-      type =  as.character(samples_df[isample,"type"]),
-      cnvprofile =  as.character(samples_df[isample,"cnvprofile"]),
-      group =  as.character(samples_df[isample,"group"]),
-      alleletype =  as.character(samples_df[isample,"alleletype"]),
-      variantfiletype =  as.character(samples_df[isample,"variantfiletype"]),
-      variantfilename =  as.character(samples_df[isample,"variantfilename"]),
-      phasinganalysis =  as.logical(samples_df[isample,"phasinganalysis"]),
-      prevalenceanalysis =  as.logical(samples_df[isample,"prevalenceanalysis"])
-    )
-    
-    sampleList<-append(sampleList, newSample)
-  }
-  
-  return(sampleList)
-}
-
-
-setGeneric("setProperty",
-           def=function(theObject, xname, xvalue){
-             standardGeneric("setProperty")
-           }
-)
-
-setMethod(f="setProperty",
-          signature = "Sample",
-          definition = function(theObject, xname, xvalue){
-            slot(theObject,xname) = xvalue
-            return(theObject)
-          }
-)
 
 #' @export
 numeric_column<-function(df,tumoursamples)

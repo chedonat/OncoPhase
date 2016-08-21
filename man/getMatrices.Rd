@@ -4,27 +4,29 @@
 \alias{getMatrices}
 \title{Generate the matrices C, W and M from a set of parameters.}
 \usage{
-getMatrices(lambda_S, mu_S, major_cn, minor_cn, lambda_G, mu_G, context,
-  LocusCoverage = TRUE)
+getMatrices(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp,
+  refcounts_snp, context, LocusCoverage = FALSE)
 }
 \arguments{
-\item{lambda_S}{: A count of 
+\item{varcounts_snv}{A count of 
 alleles supporting the variant sequence of  the somatic mutation}
 
-\item{mu_S}{: A count of 
+\item{refcounts_snv}{A count of 
 alleles supporting the reference sequence  of  the somatic mutation}
 
-\item{minor_cn}{: minor copy number   at the locus of the mutation}
+\item{major_cn}{major copy number  at the locus of the mutation}
 
-\item{lambda_G}{A count of 
+\item{minor_cn}{minor copy number   at the locus of the mutation}
+
+\item{varcounts_snp}{A count of 
 alleles supporting the variant sequence of  the Germline SNP}
 
-\item{mu_G}{: A count of 
+\item{refcounts_snp}{A count of 
 alleles  supporting the reference sequence  of  the Germline SNP}
 
 \item{context}{represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input}
 
-\item{major_cn:}{major copy number  at the locus of the mutation}
+\item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage. Default = TRUE.}
 }
 \value{
 the matrices W, C and M for the linear system of prevalence computation.
@@ -34,26 +36,26 @@ This is a generic function to generate the matrices of the linear system (see th
 }
 \examples{
 
-Matrices = getMatrices(8, 5,2,1,3,10,"C1")
- 
- print(Matrices)
-# $context
-# [1] "C1"
-# 
-# $W
-# SNP       SNV
-# SNP 0.6153846 0.0000000
-# SNV 0.0000000 0.2307692
-# 
-# $M
-# Germ Alt Both
-# SNP    1   2    2
-# SNV    0   0    1
-# 
-# $C
-# Germ Alt Both
-# SNP    2   3    3
-# SNV    2   3    3
- 
+Matrices = getMatrices(3, 10,2,1,8,5,"C1")
+
+print(Matrices)
+#$context
+#[1] "C1"
+#
+#$W
+#          SNP       SNV
+#SNP 0.6153846 0.0000000
+#SNV 0.0000000 0.2307692
+#
+#$M
+#    Germ Alt Both
+#SNP    1   2    2
+#SNV    0   0    1
+#
+#$C
+#    Germ Alt Both
+#SNP    2   3    3
+#SNV    2   3    3
+
 }
 

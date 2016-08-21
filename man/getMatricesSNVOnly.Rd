@@ -4,20 +4,23 @@
 \alias{getMatricesSNVOnly}
 \title{Generate the matrices C, W and M from a set of parameters under the mode "SNVOnly.}
 \usage{
-getMatricesSNVOnly(lambda_S, mu_S, major_cn, minor_cn, context, sigma = NULL)
+getMatricesSNVOnly(varcounts_snv, refcounts_snv, major_cn, minor_cn, context,
+  sigma = NULL)
 }
 \arguments{
-\item{lambda_S}{: A count of 
+\item{varcounts_snv}{A count of 
 alleles supporting the variant sequence of  the somatic mutation}
 
-\item{mu_S}{: A count of 
+\item{refcounts_snv}{A count of 
 alleles supporting the reference sequence  of  the somatic mutation}
 
-\item{minor_cn}{: minor copy number   at the locus of the mutation}
+\item{major_cn}{major Copy number  at the locus of the mutation}
+
+\item{minor_cn}{minor copy number   at the locus of the mutation}
 
 \item{context}{represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input}
 
-\item{major_cn:}{major copy number  at the locus of the mutation}
+\item{sigma}{Copy number of the parental chromosome harboring the mutation.}
 }
 \value{
 the matrices W, C and M for the linear system of prevalence computation.
@@ -28,8 +31,8 @@ This is a generic function to generate the matrices of the linear system (see th
 \examples{
 
 Matrices = getMatricesSNVOnly(3,10,2,1,"C1")
- 
- print(Matrices)
+
+print(Matrices)
 #$context
 #[1] "C1"
 #
@@ -44,6 +47,6 @@ Matrices = getMatricesSNVOnly(3,10,2,1,"C1")
 #$C
 #Germ Alt Both
 #SNV    2   3    3
- 
+
 }
 
