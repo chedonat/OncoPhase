@@ -179,7 +179,7 @@
 #' 
 #' @seealso \code{\link{getPrevalence}},  \code{\link{getSamplePrevalence}},   \code{\link{getSinglePrevalence}}, \code{\link{getPrevalenceSNVOnly}}                                                 
 #' @export
-getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp=NULL, refcounts_snp=NULL,  detail=0, mode="PhasedSNP",Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL)
+getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp=NULL, refcounts_snp=NULL,  detail=0, mode="PhasedSNP",Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL,Optimal=TRUE)
 {
   
   
@@ -209,9 +209,9 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
   
   
   if(mode=="PhasedSNP"){
-    prev_somatic=getPhasedSNPPrevalence( varcounts_snv,refcounts_snv , major_cn,minor_cn, varcounts_snp , refcounts_snp,detail,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination= getSinglePrevalence)
+    prev_somatic=getPhasedSNPPrevalence( varcounts_snv,refcounts_snv , major_cn,minor_cn, varcounts_snp , refcounts_snp,detail,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination= getSinglePrevalence,Optimal=Optimal)
   }else if(mode=="FlankingSNP"){
-    prev_somatic=getFlankingSNPPrevalence( varcounts_snv,refcounts_snv ,  major_cn,minor_cn,varcounts_snp , refcounts_snp, detail,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination)
+    prev_somatic=getFlankingSNPPrevalence( varcounts_snv,refcounts_snv ,  major_cn,minor_cn,varcounts_snp , refcounts_snp, detail,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination,Optimal=Optimal)
   }else if(mode=="SNVOnly"){
     prev_somatic=getSNVOnlyPrevalence(varcounts_snv,refcounts_snv ,major_cn,minor_cn, detail, Trace=Trace,NormalCellContamination=NormalCellContamination)
   }else {
@@ -305,7 +305,7 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
 #' #'@seealso \code{\link{getPrevalence}}
 #' @export
 #' 
-getSamplePrevalence<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL)
+getSamplePrevalence<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL,Optimal=TRUE)
 {
   
   #Check the compulsory columns
@@ -352,7 +352,7 @@ getSamplePrevalence<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0, regi
     refcounts_snp=input_df[imut,"refcounts_snp"]
     
     InputValues=paste(varcounts_snv,refcounts_snv,minor_cn,major_cn,varcounts_snp,refcounts_snp,sep=":")
-    prevalence= getPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp, refcounts_snp, detail=T, mode=mode ,LocusCoverage=LocusCoverage, SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination)
+    prevalence= getPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp, refcounts_snp, detail=T, mode=mode ,LocusCoverage=LocusCoverage, SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination,Optimal=Optimal)
     
     if(is.null(prevalence) ||  length(prevalence)==0 || is.na(prevalence[[1]]) )
       next
@@ -467,7 +467,7 @@ getSamplePrevalence<-function(input_df,mode="PhasedSNP",  nbFirstColumns=0, regi
 #' 
 #' #'@seealso \code{\link{getPrevalence}}
 #' @export
-getMultiSamplesPrevalence<-function(snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,mode="PhasedSNP", phasing_association_df=NULL,NormalCellContamination=NULL,nbFirstColumns=3, tumoursamples=NULL,   region=NULL,detail=TRUE,  LocusRadius = 10000,LocusCoverage=TRUE,SomaticCountAdjust=TRUE)
+getMultiSamplesPrevalence<-function(snp_allelecount_df, ref_allelecount_df, major_copynumber_df,minor_copynumber_df,mode="PhasedSNP", phasing_association_df=NULL,NormalCellContamination=NULL,nbFirstColumns=3, tumoursamples=NULL,   region=NULL,detail=TRUE,  LocusRadius = 10000,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,Optimal=TRUE)
 {
   
   
@@ -826,7 +826,7 @@ getMultiSamplesPrevalence<-function(snp_allelecount_df, ref_allelecount_df, majo
       
       
       Trace=F
-      prev_somatic=getPrevalence(varcounts_snvomatic,refcounts_snvomatic,major_cn,minor_cn, lambda_LinkedGermline , mu_LinkedGermline,  detail ,mode_locus,Trace,LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination)
+      prev_somatic=getPrevalence(varcounts_snvomatic,refcounts_snvomatic,major_cn,minor_cn, lambda_LinkedGermline , mu_LinkedGermline,  detail ,mode_locus,Trace,LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination,Optimal=Optimal)
       
       
       
@@ -872,7 +872,7 @@ getMultiSamplesPrevalence<-function(snp_allelecount_df, ref_allelecount_df, majo
 
 
 #' @export
-getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp, detail=0,Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL)
+getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp, detail=0,Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL, Optimal=TRUE)
   {
   
   
@@ -936,7 +936,53 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
       if(varcounts_snv[sample]+ refcounts_snv[sample] ==0)
         next
       
-      prevalence=do.call(getPhasedSNPPrevalence_on_singlemutation, args_list)
+      if(Optimal){
+        args_list[["LocusCoverage"]] = F
+        args_list[["SomaticCountAdjust"]] = F
+        prevalence_00 = do.call(getPhasedSNPPrevalence_on_singlemutation, args_list)
+        
+        args_list[["LocusCoverage"]] = F
+        args_list[["SomaticCountAdjust"]] = T
+        prevalence_01 = do.call(getPhasedSNPPrevalence_on_singlemutation, args_list)
+        
+        args_list[["LocusCoverage"]] = T
+        args_list[["SomaticCountAdjust"]] = F
+        prevalence_10 = do.call(getPhasedSNPPrevalence_on_singlemutation, args_list)
+        
+        #We Normalise the count first.
+        locus_snp=varcounts_snp[sample] + refcounts_snp[sample]
+        locus_snv = varcounts_snv[sample] + refcounts_snv[sample]
+        newvarcount_snv= varcounts_snv[sample] * locus_snp/locus_snv
+        newrefcount_snv= refcounts_snv[sample] * locus_snp/locus_snv
+        args_list[["varcounts_snv"]] = newvarcount_snv
+        args_list[["refcounts_snv"]] = newrefcount_snv
+        prevalence_100 = do.call(getPhasedSNPPrevalence_on_singlemutation, args_list)
+        
+        Bestprevalence= prevalence_00
+        if(prevalence_01$Residual < Bestprevalence$Residual )
+          Bestprevalence= prevalence_01
+        if(prevalence_10$Residual < Bestprevalence$Residual )
+          Bestprevalence= prevalence_10
+        if(prevalence_100$Residual < Bestprevalence$Residual )
+          Bestprevalence= prevalence_100
+        
+          
+        if (Trace){
+          cat("\n\n Prevalence 00 :\n"); print(prevalence_00) 
+          cat("\n\n Prevalence 01 :\n"); print(prevalence_01) 
+          cat("\n\n Prevalence 10 :\n"); print(prevalence_10) 
+          cat("\n\n Prevalence 100 :\n"); print(prevalence_100)
+          
+          cat("\n\n Best Prevalence  :\n"); print(Bestprevalence) 
+        }
+        
+        prevalence = Bestprevalence
+        
+      }else{
+        prevalence=do.call(getPhasedSNPPrevalence_on_singlemutation, args_list)
+      }
+      
+
       
      # print(prevalence)
       
@@ -1085,20 +1131,33 @@ getPhasedSNPPrevalence_on_singlemutation<-function(varcounts_snv,refcounts_snv,m
   {
   
   
- 
+  varcounts_snv=as.numeric(varcounts_snv)
+  refcounts_snv=as.numeric(refcounts_snv)
+  major_cn = as.numeric(major_cn)
+  minor_cn = as.numeric(minor_cn)
+  varcounts_snp = as.numeric(varcounts_snp)
+  refcounts_snp = as.numeric(refcounts_snp)
   
 
   Prevalence=NA
   DetailedPrevvalence=NA
-  
+
   if(SomaticCountAdjust){
       if(varcounts_snv > varcounts_snp)
         varcounts_snv=varcounts_snp
       if(refcounts_snv < refcounts_snp)
         refcounts_snv = refcounts_snp 
       
-      if(refcounts_snv < qpois(0.001,max(0,refcounts_snp + varcounts_snp - varcounts_snv)))
-        refcounts_snv=refcounts_snp + varcounts_snp - varcounts_snv
+      if(refcounts_snv + varcounts_snv < qpois(0.05,max(0,refcounts_snp + varcounts_snp ))||
+         refcounts_snv + varcounts_snv > qpois(0.95,max(0,refcounts_snp + varcounts_snp ))){
+        
+        locus_snp=varcounts_snp + refcounts_snp
+        locus_snv = varcounts_snv + refcounts_snv
+        
+        varcounts_snv = varcounts_snv * locus_snp/locus_snv
+        refcounts_snv = refcounts_snv * locus_snp/locus_snv
+      }
+
     }
   
 
@@ -1115,9 +1174,12 @@ getPhasedSNPPrevalence_on_singlemutation<-function(varcounts_snv,refcounts_snv,m
     
     PrevalenceCond = PrevalenceCond_C1
     context="C1"
+    AlternateResidualNorm = PrevalenceCond_C2["residual"]
+    
     if(as.numeric(PrevalenceCond_C2["residual"]) < as.numeric(PrevalenceCond_C1["residual"])){
       PrevalenceCond = PrevalenceCond_C2
       context="C2"
+      AlternateResidualNorm = PrevalenceCond_C1["residual"]
     }
     
     
@@ -1142,7 +1204,7 @@ getPhasedSNPPrevalence_on_singlemutation<-function(varcounts_snv,refcounts_snv,m
     input_values = paste(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp, refcounts_snp,sep=":")
     
     if(detail){
-      Prevalence_output = list(Context=context,Prevalence=Prevalence,DetailedPrevalence=AllPrevalences,ResidualNorm=residualNorm, CondensedPrevalence = condensedPrevalence,InputValues=input_values)
+      Prevalence_output = list(Context=context,Prevalence=Prevalence,DetailedPrevalence=AllPrevalences,ResidualNorm=residualNorm, AlternateResidualNorm=AlternateResidualNorm, CondensedPrevalence = condensedPrevalence,InputValues=input_values)
     }else{
       Prevalence_output = Prevalence
     }
