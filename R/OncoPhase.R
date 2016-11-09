@@ -16,7 +16,7 @@
 #'       \item{Alt}{ Cells harboring one  alternative between the two somatic alterations. That is either only the SNV if C=1 (SNV occurred before SCNA) or only the SCNA if C=0 (SNV occurred after the SCNA).}
 #'       \item{Both}{ Cells harboring both somatic alterations. That is the SNV and the SCNA}
 #'    }
-#' 
+#'    
 #' OncoPhase can also compute the mutation cellular prevalence without requiring any nearby phased SNP when no phasing information is  available or when explicitely specified by the choice of the mode.  OncoPhase can be run  under three different modes : 
 #'  \describe{
 #'        \item{PhasedSNP}{ Phasing information is required. The prevalence is computed relatively to a nearby Phased SNP whose allelic counts should be provided}
@@ -24,26 +24,18 @@
 #'        \item{Ultimate}{ This is the default mode. For a given mutation, the method checks if the phasing information is required to compute an accurate cellular prevalence. If it is not, the SNVOnly mode  is used. If instead the phasing information is required the mode is then set to PhasedSNP if allelic counts of a phased nearby SNP are provided.  This is done by first computing the prevalence under the SNVOnly mode. If the data do not fit into this mode (hiogh residual of the linear model), then the prevalence is computed using PhasedSNP mode.
 #'     }
 #'     }
-#'     OncoPhase also infer the context establishing the temporal relationship between the SNV and the copy number lateration affecting the mutation locus. Two context exists :
-#'  \describe{
-#'       \item{C1}{ The SNV occured after the copy number alteration }
-#'       \item{C2}{ The SNV occured before the copy number alteration}
-#'    }  
-#' 
-#' 
-#' 
+#'     OncoPhase also infer the context establishing the temporal relationship between the SNV and the copy number alteration affecting the mutation locus. Two context exists. \strong{C1} : The SNV occured after the copy number alteration and \strong{C2}: The SNV occured before the copy number alteration
 #' The main functions of OncoPhase package  are    \code{\link{getPrevalence}}  and   \code{\link{getSamplePrevalence}}.   For more detailed information on usage, see the package vignette, by typing
 #' \code{vignette("OncoPhase")}. All support questions should be emailed to the authors.
 #' 
+#' @examples 
+#' library(OncoPhase)
+#' getPrevalence(77,186,2,1,85,110)
+#' #> 0.83 
+#' 
 #' @references
-#' 
-#' OncoPhase reference:
-#' 
 #' Chedom-Fotso Donatien, Ahmed Ashour Ahmed, and Christopher Yau. "OncoPhase: Quantification of somatic mutation cellular prevalence using phase information." bioRxiv (2016): 046631.
-#' 
-#' 
-#' @author Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
-#' 
+#'
 #' @docType package
 #' @name A-OncoPhase
 #' @aliases OncoPhase-package
