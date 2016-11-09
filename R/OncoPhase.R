@@ -10,19 +10,29 @@
 #' 
 #' OncoPhase: An R package for somatic mutations cellular prevalence quantification using haplotype phasing.
 #' 
-#' OncoPhase uses haplotype phase information to accurately compute mutational cellular prevalence. OncoPhase utilizes three sources of information: the phasing information, the copy number variation, and the allele counts.  It takes as input a combination of phased SNV and SNP allele-specific sequence read counts and local allele-specific copy numbers to determine the proportion of cells harboring the SNV and compute specific and detailed mutation cellular prevalence for each of the following groups of cells: 
-#' 
+#' OncoPhase uses haplotype phase information when required to accurately compute mutational cellular prevalence. OncoPhase utilizes three sources of information: the phasing information, the copy number variation, and the allele counts.  It takes as input a combination of phased SNV and SNP allele-specific sequence read counts and local allele-specific copy numbers to determine the proportion of cells harboring the SNV and compute specific and detailed mutation cellular prevalence for each of the following groups of cells: 
 #'  \describe{
 #'       \item{Germ}{ Germline cells having a normal genotype with no mutations and no copy number alteration at the considered locus. }
 #'       \item{Alt}{ Cells harboring one  alternative between the two somatic alterations. That is either only the SNV if C=1 (SNV occurred before SCNA) or only the SCNA if C=0 (SNV occurred after the SCNA).}
 #'       \item{Both}{ Cells harboring both somatic alterations. That is the SNV and the SCNA}
 #'    }
 #' 
-#' OncoPhase can compute the mutation cellular prevalence under three different modes : PhasedSNP, FlankingSNP and SNVOnly.
+#' OncoPhase can also compute the mutation cellular prevalence without requiring any nearby phased SNP when no phasing information is  available or when explicitely specified by the choice of the mode.  OncoPhase can be run  under three different modes : 
+#'  \describe{
+#'        \item{PhasedSNP}{ Phasing information is required. The prevalence is computed relatively to a nearby Phased SNP whose allelic counts should be provided}
+#'        \item{SNVOnly}{The prevalence is computed using only the SNV information without the usage of any nearby SNP}
+#'        \item{Ultimate}{ This is the default mode. For a given mutation, the method checks if the phasing information is required to compute an accurate cellular prevalence. If it is not, the SNVOnly mode  is used. If instead the phasing information is required the mode is then set to PhasedSNP if allelic counts of a phased nearby SNP are provided.  This is done by first computing the prevalence under the SNVOnly mode. If the data do not fit into this mode (hiogh residual of the linear model), then the prevalence is computed using PhasedSNP mode.
+#'     }
+#'     }
+#'     OncoPhase also infer the context establishing the temporal relationship between the SNV and the copy number lateration affecting the mutation locus. Two context exists :
+#'  \describe{
+#'       \item{C1}{ The SNV occured after the copy number alteration }
+#'       \item{C2}{ The SNV occured before the copy number alteration}
+#'    }  
 #' 
 #' 
 #' 
-#' The main functions for somatic mutation cellular prevalence computation are    \code{\link{getPrevalence}} ,   \code{\link{getSamplePrevalence}}  and  \code{\link{getMultiSamplesPrevalence}} .   For more detailed information on usage, see the package vignette, by typing
+#' The main functions of OncoPhase package  are    \code{\link{getPrevalence}}  and   \code{\link{getSamplePrevalence}}.   For more detailed information on usage, see the package vignette, by typing
 #' \code{vignette("OncoPhase")}. All support questions should be emailed to the authors.
 #' 
 #' @references
@@ -35,7 +45,7 @@
 #' @author Donatien Chedom-Fotso, Ahmed Ahmed, Christopher Yau.
 #' 
 #' @docType package
-#' @name a-OncoPhase
+#' @name A-OncoPhase
 #' @aliases OncoPhase-package
 #' @keywords package
 #' @import limSolve
@@ -86,32 +96,9 @@ hg19_dfsize<-list(chr1=249250621,chr2=243199373,chr3=198022430, chr4=191154276,
   if(any(toset)) options(op.OncoPhase[toset])
   
   
-  require(limSolve)
+  #require(limSolve)
   
   invisible()
 }
-
-
-
-# Main prevalence function
-##########################
-##########################
-##########################
-
-
-#' @export
-numeric_column<-function(df,tumoursamples)
-{
-  for (col in tumoursamples)
-  {
-    df[col] =  as.numeric(unlist(df[col]))
-  }
-  df
-}
-
-
-
-
-
 
 

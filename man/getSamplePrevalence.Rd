@@ -2,64 +2,82 @@
 % Please edit documentation in R/OncoPhase_methods.R
 \name{getSamplePrevalence}
 \alias{getSamplePrevalence}
-\title{Somatic mutations cellular prevalence on a sample.}
+\title{Somatic mutations cellular prevalence on a sample set of mutations}
 \usage{
-getSamplePrevalence(input_df, mode = "PhasedSNP", nbFirstColumns = 0,
-  region = NULL, detail = TRUE, LocusCoverage = TRUE,
-  SomaticCountAdjust = TRUE, NormalCellContamination = NULL)
+getSamplePrevalence(input_df, mode = "Ultimate", nbFirstColumns = 0,
+  region = NULL, detail = TRUE, LocusCoverage = FALSE,
+  SomaticCountAdjust = FALSE, CopyNumberFraction = FALSE,
+  NormalCellContamination = NULL, Optimal = TRUE,
+  c2_max_residual_treshold = Inf, c1_ultimate_c2_replacing_treshold = 0.1,
+  snvonly_max_treshold = 0.1)
 }
 \arguments{
-\item{input_df}{A data frame containing for each mutations :
+\item{input_df}{A data frame containing for each mutation the following information (columns or fields) :
 \describe{
-       \item{varcounts_snv}{Alelle counts supporting the SNV}
-       \item{refcounts_snv}{Alelle counts supporting the reference at the SNV locus}
+       \item{varcounts_snv}{Allele counts supporting the SNV}
+       \item{refcounts_snv}{Allele counts supporting the reference at the SNV locus}
        \item{major_cn}{Major copy number at the SNV locus}
        \item{minor_cn}{Minor copy number at the SNV locus}
-       \item{varcounts_snp}{Alelle counts supporting the SNP}
-       \item{refcounts_snp}{Alelle counts supporting the reference at the SNP}
+       \item{varcounts_snp}{(Optional) Allele counts supporting the nearby phased SNP. Required if mode= PhasedSNP}
+       \item{refcounts_snp}{(Optional) Allele counts supporting the reference at the nearby phased SNP. Required if mode= PhasedSNP }
      }}
 
-\item{mode}{The mode under which the prevalence is computed  (Default : PhasedSNP , alternatives methods  are FlankingSNP, OptimalSNP,and SNVOnly).  Can also be provided as a numeric 0=SNVOnly, 1= PhasedSNP, 2=FlankingSNP and 3 = OptimalSNP}
+\item{mode}{The mode under which the prevalence is computed  (Default : Ultimate , alternatives methods  are PhasedSNP and SNVOnly).  Can also be provided as a numeric 0=SNVOnly, 1= PhasedSNP, 2=Ultimate.}
 
 \item{nbFirstColumns}{Number of first columns in input_df to reproduce in the output dataframe e.g: Chrom, Pos, Vartype. Columns from  nbFirstColumns +1 to the last column should contains the information needed for the prevalence computation.}
 
 \item{region}{The region of the genome to consider for the prevalence computation  in the format chrom:start-end   e.g "chr22:179800-98767.}
 
-\item{detail}{when set to TRUE, a detailed output is generated containing, the context and the detailed prevalence for each group of cells (germline cells, cells affected by one of the two genomic alterations (SNV or CNV) but not both, cells affected by  both copy number alteration and SNV ).}
+\item{detail}{when set to TRUE, a detailed output is generated containing, the context and the detailed prevalence for each group of cells (germline cells, cells affected by one of the two genomic alterations SNV or copy number alteration and cells affected by  both copy number alteration and SNV ). The residual and the linear models inputs and parameters are also reported.}
 
 \item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
 
-\item{SomaticCountAdjust}{when set to TRUE, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly,}
+\item{SomaticCountAdjust}{when set to TRUE, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the reqirements varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly.}
+
+\item{CopyNumberFraction}{when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.}
 
 \item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
+
+\item{Optimal}{The model will be run under different configurations  of the parameters LocusCoverage, SomaticCountAdjust and CopyNumberFraction, they configuration yielding the optimal residual is then selected and returned.}
+
+\item{c2_max_residual_treshold}{Maximum residual threshold under which the context C2 can be inferred.}
+
+\item{c1_ultimate_c2_replacing_treshold}{Context C1 is inferred if its linear model residual is less than the specified threshold.}
+
+\item{snvonly_max_treshold}{Maximum threshold the linear model under SNVOnly is considered valid. Is the residual is greater than the value, then PhasedSNP is considered in case the phasing information are available.}
 }
 \value{
 A data frame containing :
  \describe{
-       \item{}{Column 1 to NbFirstcolumn of the input data frame input_df. 
+       \item{}{Column 1 to NbFirstcolumn of the input data frame input_df.
        This will generally include the chromosome and the position of the mutation plus
-       any other columns to report in the prevalence dataframe (e.g REF, ALL, ...) }
+       any other columns to report in the prevalence dataframe (e.g REF and ALL sequences, ...) }
         \item{}{and the following information}
   \describe{
-       \item{Prev}{The Cellular Prevalence of the mutation}
+       \item{Prevalence}{The Cellular Prevalence of the mutation}
        \item{Germ}{The proportion of cells with a normal genotype}
        \item{Alt}{The proportion of cells with only the CNA if the context C=C1 or with only the SNV if the context C=C2}
        \item{Both}{The proportion of cells with both the SNV and the SCNA}
        \item{Context}{Context at the mutation. If C1 then the SNV occurred after the SCNA, if C=c2 then the SNV occurred before the SCNA}
-       \item{residual}{Residual after limSolve approximation.}
+       \item{solutionNorm}{Residual of the linear model.}
+       \item{residualNorm}{Constraints residual  representing the sum of absolute values of solutionNorms of equalities and violated inequalities.}
+       \item{Quality}{Quality of the prevalence calling. H if residual < 1e-05, F if residual < 1e-03 and L if residual > 1e-03}
+       \item{Alt_Prevalence}{Prevalence estimated by the model if the context were to be the alternative context}
+       \item{Alt_solutionNorm}{Residual of the linear modelunder the alternative context}
+       \item{Alt_residualNorm}{Constraints residual  representing  the sum of absolute values of solutionNorms of equalities and violated inequalities under the alternative context}
+       \item{Mode}{The mode considered for the cellular prevalence computation (either SNVOnly of PhasedSNP)}
      }
      }
 }
 \description{
-This function computes the cellular prevalence of a list of somatic mutations in
- cancer.  The function applies the model to a range of mutations located at a given genomic region or at the whole genome scale. 
-The function invokes \code{\link{getPrevalence}}  to compute the cellular prevalence for each mutation of the list.
-The model computes the prevalence of a somatic
-  mutation relatively to close and eventually phased germline SNP as specified in \code{\link{getPrevalence}}.
+This function computes the cellular prevalence of a list of somatic mutations of a tumor.  The function applies OncoPhase linear model to a range of mutations located at a given genomic region or at the whole genome scale.
+It invokes the function  \code{\link{getPrevalence}}  to compute the cellular prevalence for each mutation of the set.
+When phasing information are available, the method can computes the prevalence of a somatic
+  mutation relatively to phased germline SNP under the mode “PhasedSNP”. If the phasing information are not available the mode “SNVOnly” will be used to derive the cellular prevalence. as specified in \code{\link{getPrevalence}}.
 }
 \examples{
 
-#Example 1: 
+#Example 1:
 
 input_file=system.file("extdata","phylogeny1_d300_n80.tsv", package = "OncoPhase")
 input_df<-read.table(input_file,header=TRUE)
@@ -75,12 +93,18 @@ print(input_df)
 prevalence_df=getSamplePrevalence(input_df,nbFirstColumns = 1)
 
 print(prevalence_df)
-#  mut_id   Prev   Germ    Alt   Both Residual Context
-#  a      a 0.9967 0.0017 0.0017 0.9967  3.1e-03      C1
-#  b      b 0.8230 0.0890 0.0890 0.8230  1.3e-03      C1
-#  c      c 0.4010 0.6000 0.0910 0.3100  3.9e-33      C2
-#  d      d 0.1500 0.4200 0.4200 0.1500  1.4e-03      C1
-#  e      e 0.2490 0.7500 0.0890 0.1600  5.1e-31      C2
+#mutation_id Prevalence   Germ    Alt   Both Context solutionNorm residualNorm Quality Alt_Prevalence
+#a           a     0.9967 0.0017 0.0017 0.9967      C1 7.718183e-32 2.220446e-16       H         0.9966
+#b           b     0.8230 0.0890 0.0890 0.8230      C1 1.925930e-32 0.000000e+00       H         0.8200
+#c           c     0.9000 0.1000 0.0000 0.9000      C1 5.238529e-32 2.220446e-16       H         0.7300
+#d           d     0.1500 0.4200 0.4200 0.1500      C1 1.972152e-31 4.440892e-16       H         0.1500
+#e           e     0.4200 0.2900 0.2900 0.4200      C1 5.007418e-32 2.220446e-16       H         0.7100
+#Alt_solutionNorm Alt_residualNorm         InputValues    Mode      lm_inputs lm_params
+#a     1.222984e-32     0.000000e+00 151:152:1:1:151:135 SNVOnly 151:152:1:1:C1  0.5:NA:2
+#b     5.623715e-32     2.220446e-16 123:176:1:1:161:150 SNVOnly 123:176:1:1:C1 0.41:NA:2
+#c     6.933348e-33     0.000000e+00  94:209:2:1:176:134 SNVOnly  94:209:2:1:C1 0.31:NA:3
+#d     3.081488e-33     0.000000e+00  23:283:1:1:155:144 SNVOnly  23:283:1:1:C1 0.08:NA:2
+#e     5.007418e-32     2.220446e-16  60:228:2:0:174:125 SNVOnly  60:228:2:0:C1 0.21:NA:2
 
 
 #'@seealso \\code{\\link{getPrevalence}}

@@ -8,10 +8,10 @@ getMatricesSNVOnly(varcounts_snv, refcounts_snv, major_cn, minor_cn, context,
   sigma = NULL)
 }
 \arguments{
-\item{varcounts_snv}{A count of 
+\item{varcounts_snv}{A count of
 alleles supporting the variant sequence of  the somatic mutation}
 
-\item{refcounts_snv}{A count of 
+\item{refcounts_snv}{A count of
 alleles supporting the reference sequence  of  the somatic mutation}
 
 \item{major_cn}{major Copy number  at the locus of the mutation}
