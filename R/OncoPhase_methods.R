@@ -24,8 +24,7 @@
 #' @param detail when set to TRUE, a detailed output is generated containing, the context and the detailed prevalence for each group of cells (germline cells, cells affected by one of the two genomic alterations SNV or copy number alteration and cells affected by  both copy number alteration and SNV ). The residual and the linear models inputs and parameters are also reported.
 #' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.
 #' @param SomaticCountAdjust when set to TRUE, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the reqirements varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly.
-#' @param CopyNumberFraction when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.
-#' @param Optimal The model will be run under different configurations  of the parameters LocusCoverage, SomaticCountAdjust and CopyNumberFraction, they configuration yielding the optimal residual is then selected and returned.
+#' @param Optimal The model will be run under different configurations  of the parameters LocusCoverage and SomaticCountAdjust. The configuration yielding the optimal residual is then selected and returned.
 #' @param NormalCellContamination If provided, represents the rate of normal cells contaminations in the experiment.
 #' @param c2_max_residual_treshold Maximum residual threshold under which the context C2 can be inferred.
 #' @param c1_ultimate_c2_replacing_treshold Context C1 is inferred if its linear model residual is less than the specified threshold.
@@ -88,7 +87,7 @@
 #' #'@seealso \code{\link{getPrevalence}}
 #' @export
 #'
-getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=FALSE,SomaticCountAdjust=FALSE,CopyNumberFraction=FALSE,NormalCellContamination=NULL,Optimal=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1, snvonly_max_treshold=0.1)
+getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=FALSE,SomaticCountAdjust=FALSE,NormalCellContamination=NULL,Optimal=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1, snvonly_max_treshold=0.01,verbose=TRUE)
 {
   
   #Check the compulsory columns
@@ -124,6 +123,7 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
     colnames(masterprevalence) = c("Prevalence", "Germ","Alt","Both","Context")
   }
   
+  if(verbose)
   cat("\n Computing the cellular prevalence of ", nrow(input_df), " somatic mutations (mode = ", mode,")\n")
   for(imut in 1: nrow(input_df))
   {
@@ -137,7 +137,7 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
     InputValues=paste(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp,refcounts_snp,sep=":")
 
     
-    prevalence= getPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp, refcounts_snp, detail=T, mode=mode ,LocusCoverage=LocusCoverage, SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination,Optimal=Optimal,CopyNumberFraction=CopyNumberFraction,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold,snvonly_max_treshold=snvonly_max_treshold)
+    prevalence= getPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp, refcounts_snp, detail=T, mode=mode ,LocusCoverage=LocusCoverage, SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination=NormalCellContamination,Optimal=Optimal,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold,snvonly_max_treshold=snvonly_max_treshold)
     
 
     if(is.null(prevalence) ||  length(prevalence)==0 || is.na(prevalence) )
@@ -165,6 +165,7 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
     
   }
   
+  if(verbose)
   cat("\n End of somatic mutations cellular prevalence computation\n")
   
   masterprevalence
@@ -226,7 +227,6 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
 #' @param Trace if set to TRUE, print the trace of the computation.
 #' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.
 #' @param SomaticCountAdjust when set to 1, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly.
-#' @param CopyNumberFraction when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.
 #' @param NormalCellContamination If provided, represents the rate of normal cells contaminations in the experiment.
 #' @param Optimal If TRUE, the prevalence is computed under all combination of the options SomaticCountAdjust, LocusCoverage and NormalisedCount, the value with the lower residual  is returned as the best prevalence
 #' @param Context if provided, the prevalence will be computed strictly under the given context, if not the prevalence is computed under both context and the one yielding the smallest solutionNorm is retained. Default : NULL
@@ -356,7 +356,7 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
 #'
 #' @seealso \code{\link{getPrevalence}},  \code{\link{getSamplePrevalence}},   \code{\link{getSinglePhasedSNPPrevalence}}, \code{\link{getSingleSNVOnlyPrevalence}}
 #' @export
-getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp=NULL, refcounts_snp=NULL,  detail=FALSE, mode="Ultimate",Trace=FALSE,LocusCoverage=FALSE,SomaticCountAdjust=FALSE,CopyNumberFraction=FALSE,Optimal=TRUE, NormalCellContamination=NULL, Context=NULL, SearchContext=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1, snvonly_max_treshold=0.1 )
+getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp=NULL, refcounts_snp=NULL,  detail=FALSE, mode="Ultimate",Trace=FALSE,LocusCoverage=FALSE,SomaticCountAdjust=FALSE,Optimal=TRUE, NormalCellContamination=NULL, Context=NULL, SearchContext=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1, snvonly_max_treshold=0.01 )
 {
 
   N=length(varcounts_snv) # Number of samples
@@ -382,7 +382,7 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
 
 
   if(mode=="PhasedSNP"){
-    prev_somatic=getPhasedSNPPrevalence( varcounts_snv,refcounts_snv , major_cn,minor_cn, varcounts_snp , refcounts_snp,detail=TRUE,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination= NormalCellContamination,Optimal=Optimal,Context=Context,SearchContext=SearchContext,CopyNumberFraction=CopyNumberFraction,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold)
+    prev_somatic=getPhasedSNPPrevalence( varcounts_snv,refcounts_snv , major_cn,minor_cn, varcounts_snp , refcounts_snp,detail=TRUE,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination= NormalCellContamination,Optimal=Optimal,Context=Context,SearchContext=SearchContext,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold)
   }else if(mode=="SNVOnly"){
     prev_somatic=getSNVOnlyPrevalence(varcounts_snv,refcounts_snv ,major_cn,minor_cn, detail=TRUE, Trace=Trace,NormalCellContamination=NormalCellContamination,Context=Context,SearchContext=SearchContext,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold)
      }else if(mode=="Ultimate") {
@@ -412,7 +412,7 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
        #If the residual is greater  than the max SNVOnly residual then PhasedSNP is run and the mode with less residual is chosed
        
        if(residual_snvonly > snvonly_max_treshold ){
-         prev_somatic_PhasedSNP=getPhasedSNPPrevalence( varcounts_snv,refcounts_snv , major_cn,minor_cn, varcounts_snp , refcounts_snp,detail=TRUE,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination= NormalCellContamination,Optimal=Optimal,Context=Context,SearchContext=SearchContext,CopyNumberFraction=CopyNumberFraction,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold)
+         prev_somatic_PhasedSNP=getPhasedSNPPrevalence( varcounts_snv,refcounts_snv , major_cn,minor_cn, varcounts_snp , refcounts_snp,detail=TRUE,Trace=Trace,LocusCoverage=LocusCoverage,SomaticCountAdjust=SomaticCountAdjust,NormalCellContamination= NormalCellContamination,Optimal=Optimal,Context=Context,SearchContext=SearchContext,c2_max_residual_treshold=c2_max_residual_treshold,  c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold)
          
          residual_phasedsnp=Inf
          if(length(prev_somatic_PhasedSNP)>0){
@@ -481,7 +481,7 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
 
 
 #' @export
-getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp, detail=0,Trace=FALSE,LocusCoverage=FALSE,SomaticCountAdjust=FALSE,NormalCellContamination=NULL, Optimal=TRUE,Context=NULL,  SearchContext=T, CopyNumberFraction=FALSE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1)
+getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp, detail=0,Trace=FALSE,LocusCoverage=FALSE,SomaticCountAdjust=FALSE,NormalCellContamination=NULL, Optimal=TRUE,Context=NULL,  SearchContext=T, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1)
   {
 
 
@@ -539,7 +539,6 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
         SomaticCountAdjust=SomaticCountAdjust,
         Context=Context,
         SearchContext=SearchContext,
-        CopyNumberFraction=CopyNumberFraction,
         c2_max_residual_treshold=c2_max_residual_treshold, 
         c1_ultimate_c2_replacing_treshold=c1_ultimate_c2_replacing_treshold)
 
@@ -555,33 +554,24 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
       
       if(Optimal){
         
+    
         
-        #We opt for Copy Number Fraction
-        args_list[["LocusCoverage"]] = F
-        args_list[["SomaticCountAdjust"]] = F
-        args_list[["CopyNumberFraction"]] = T
-        prevalence_1000 = do.call(getPhasedSNPPrevalence_singlesample, args_list)
-        OptimalString=paste(OptimalString,"|(A: ",prevalence_1000$Prevalence," ", prevalence_1000$solutionNorm," ", prevalence_1000$residualNorm,")|",sep="")
-        
-        
-        NewBestprevalence= prevalence_1000
-        if(prevalence_1000$solutionNorm >0.01){
+       # NewBestprevalence= prevalence_1000
+       # if(prevalence_1000$solutionNorm >0.01)
+      #    {
           args_list[["LocusCoverage"]] = F
           args_list[["SomaticCountAdjust"]] = F
-          args_list[["CopyNumberFraction"]] = F
           prevalence_00 = do.call(getPhasedSNPPrevalence_singlesample, args_list)
           OptimalString=paste(OptimalString,"|(B:",prevalence_00$Prevalence," ", prevalence_00$solutionNorm," ", prevalence_00$residualNorm,")|",sep="")
           
           args_list[["LocusCoverage"]] = F
           args_list[["SomaticCountAdjust"]] = T
-          args_list[["CopyNumberFraction"]] = F
           prevalence_01 = do.call(getPhasedSNPPrevalence_singlesample, args_list)
           OptimalString=paste(OptimalString,"|(C:",prevalence_01$Prevalence," ", prevalence_01$solutionNorm," ", prevalence_01$residualNorm,")|",sep="")
           
           
           args_list[["LocusCoverage"]] = T
           args_list[["SomaticCountAdjust"]] = F
-          args_list[["CopyNumberFraction"]] = F
           prevalence_10 = do.call(getPhasedSNPPrevalence_singlesample, args_list)
           OptimalString=paste(OptimalString,"|(D: ",prevalence_10$Prevalence," ", prevalence_10$solutionNorm," ", prevalence_10$residualNorm,")|",sep="")
           
@@ -595,7 +585,6 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
 #           args_list[["refcounts_snv"]] = newrefcount_snv
 #           args_list[["LocusCoverage"]] = F
 #           args_list[["SomaticCountAdjust"]] = F
-#           args_list[["CopyNumberFraction"]] = F
           
           # prevalence_100 = do.call(getPhasedSNPPrevalence_singlesample, args_list)
         
@@ -612,14 +601,12 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
             Bestprevalence= prevalence_10
          # if(prevalence_100$solutionNorm < Bestprevalence$solutionNorm )
          #   Bestprevalence= prevalence_100
-          if(prevalence_1000$solutionNorm < Bestprevalence$solutionNorm )
-            Bestprevalence= prevalence_1000
           
           
           
           NewBestprevalence= Bestprevalence
           
-        }
+      #  }
         
     
 
@@ -629,8 +616,6 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
           cat("\n\n Prevalence 01 :\n"); print(prevalence_01)
           cat("\n\n Prevalence 10 :\n"); print(prevalence_10)
         #  cat("\n\n Prevalence 100 :\n"); print(prevalence_100)
-          cat("\n\n Prevalence 1000 :\n"); print(prevalence_1000)
-
           cat("\n\n Best Prevalence  :\n"); print(Bestprevalence)
         }
         
@@ -669,7 +654,7 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
 
 
 #' @export
-getPhasedSNPPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp, refcounts_snp, detail=FALSE,Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL, Context=NULL, SearchContext=T, CopyNumberFraction=FALSE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1)
+getPhasedSNPPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp, refcounts_snp, detail=FALSE,Trace=FALSE,LocusCoverage=TRUE,SomaticCountAdjust=TRUE,NormalCellContamination=NULL, Context=NULL, SearchContext=T, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1)
   {
   varcounts_snv=as.numeric(varcounts_snv)
   refcounts_snv=as.numeric(refcounts_snv)
@@ -704,9 +689,9 @@ getPhasedSNPPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_
   
   #We compute the prevalence for the two contexts and if context=NULL, we choose the one with the less solutionNorm
   if(Trace) cat("\n\n\n Context : C1 (C=0)  SNV after CNA \n **********")
-  PrevalenceCond_C1 = getSinglePhasedSNPPrevalence(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,"C1",Trace,LocusCoverage,NormalCellContamination,CopyNumberFraction=CopyNumberFraction)
+  PrevalenceCond_C1 = getSinglePhasedSNPPrevalence(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,"C1",Trace,LocusCoverage,NormalCellContamination)
   if(Trace) cat("\n\n\n Context : C2 (C=1)  SNV before CNA \n **********")
-  PrevalenceCond_C2 = getSinglePhasedSNPPrevalence(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,"C2",Trace,LocusCoverage,NormalCellContamination,CopyNumberFraction=CopyNumberFraction)
+  PrevalenceCond_C2 = getSinglePhasedSNPPrevalence(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,"C2",Trace,LocusCoverage,NormalCellContamination)
   #By default we assign context c1
   
   PrevalenceCond = PrevalenceCond_C1
@@ -718,7 +703,7 @@ getPhasedSNPPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_
   my_context=Context
   if(SearchContext && is.null(my_context))
   {
-    my_context=  BruteForceContextPhasedSNP(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp, refcounts_snp,LocusCoverage=LocusCoverage,CopyNumberFraction=CopyNumberFraction)
+    my_context=  BruteForceContextPhasedSNP(varcounts_snv, refcounts_snv, major_cn, minor_cn, varcounts_snp, refcounts_snp,LocusCoverage=LocusCoverage)
     Context=my_context
 
     #If searchContext On and Context=C2, we check if C2 requirement are met
@@ -1087,7 +1072,6 @@ getSNVOnlyPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_cn
 #' alleles  supporting the reference sequence  of  the Germline SNP
 #' @param context represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input
 #' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.
-#' @param CopyNumberFraction when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.
 #'
 #'
 #' @return   the matrices W, C and M for the linear system of prevalence computation.
@@ -1118,7 +1102,7 @@ getSNVOnlyPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_cn
 #' #SNV    2   3    3
 #'
 #' @export
-getMatricesPhasedSNP<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,context,LocusCoverage=FALSE,CopyNumberFraction=FALSE){
+getMatricesPhasedSNP<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,context,LocusCoverage=FALSE){
   total_cn = major_cn + minor_cn
 
 #   if((LocusCoverage>0)){
@@ -1160,9 +1144,7 @@ getMatricesPhasedSNP<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,var
   
   #Maintenance, lets fix Omega_G to sigma/(major +minor)
   
-  #If option CopyNumberFraction, we change omega_G to the copynumbe rfraction
-  if(CopyNumberFraction)
-  omega_G =sigma/(major_cn + minor_cn)
+
   
   W=matrix(c(omega_G,0,0,omega_S),ncol=2,nrow=2)
   colnames(W)= c("SNP","SNV")
@@ -1310,7 +1292,6 @@ getMatricesSNVOnly<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,conte
 #' @param context represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input
 #' @param LocusCoverage when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.
 #' @param NormalCellContamination If provided, represents the rate of normal cells contaminations in the experiment.
-#' @param CopyNumberFraction when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.
 #' @param Trace Print a trace of the eecution.
 #'
 #' @return   A list of the three cellular prevalence of each of the three groups of cells
@@ -1325,9 +1306,8 @@ getMatricesSNVOnly<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,conte
 #'
 #' @seealso \code{\link{getPrevalence}},   \code{\link{getMatricesPhasedSNP}}
 #' @export
-getSinglePhasedSNPPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,context,Trace=FALSE,LocusCoverage=TRUE,NormalCellContamination=NULL,CopyNumberFraction=FALSE)
+getSinglePhasedSNPPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,context,Trace=FALSE,LocusCoverage=TRUE,NormalCellContamination=NULL)
   {
-
 
 
   if(is.na(refcounts_snv) || is.na(refcounts_snp)){
@@ -1346,7 +1326,7 @@ getSinglePhasedSNPPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,mino
   }
 
 
-  matrix=getMatricesPhasedSNP(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,context,LocusCoverage=LocusCoverage,CopyNumberFraction=CopyNumberFraction)
+  matrix=getMatricesPhasedSNP(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp, refcounts_snp,context,LocusCoverage=LocusCoverage)
   if(Trace){
     cat("\n\n The matrices :\n ")
     print(matrix)
@@ -1566,7 +1546,7 @@ getSingleSNVOnlyPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_
 
 
 #' @export
-BruteForceContextPhasedSNP<-function(varcount_snv,refcount_snv,major_cn,minor_cn,varcount_snp=NULL,refcount_snp=NULL,LocusCoverage=F,CopyNumberFraction=FALSE)
+BruteForceContextPhasedSNP<-function(varcount_snv,refcount_snv,major_cn,minor_cn,varcount_snp=NULL,refcount_snp=NULL,LocusCoverage=F)
   {
   #we compute for +/- the allele fraction to catch up the majority context.
   lowerbound = max(0,round(varcount_snv/(refcount_snv+varcount_snv),digits=2) - 0.1)
@@ -1589,8 +1569,8 @@ BruteForceContextPhasedSNP<-function(varcount_snv,refcount_snv,major_cn,minor_cn
     for (varcount in snv_counts){
 
 
-        p_C1=getSinglePhasedSNPPrevalence(varcount,refcount_snv,major_cn,minor_cn,varcount_snp,refcount_snp,"C1",LocusCoverage=LocusCoverage,CopyNumberFraction=CopyNumberFraction)
-        p_C2=getSinglePhasedSNPPrevalence(varcount,refcount_snv,major_cn,minor_cn,varcount_snp,refcount_snp,"C2",LocusCoverage=LocusCoverage,CopyNumberFraction=CopyNumberFraction)
+        p_C1=getSinglePhasedSNPPrevalence(varcount,refcount_snv,major_cn,minor_cn,varcount_snp,refcount_snp,"C1",LocusCoverage=LocusCoverage)
+        p_C2=getSinglePhasedSNPPrevalence(varcount,refcount_snv,major_cn,minor_cn,varcount_snp,refcount_snp,"C2",LocusCoverage=LocusCoverage)
         
       #  print(p_C1)
         
