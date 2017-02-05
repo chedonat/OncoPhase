@@ -5,8 +5,7 @@
 \title{Generate the matrices C, W and M from a set of parameters.}
 \usage{
 getMatricesPhasedSNP(varcounts_snv, refcounts_snv, major_cn, minor_cn,
-  varcounts_snp, refcounts_snp, context, LocusCoverage = FALSE,
-  CopyNumberFraction = FALSE)
+  varcounts_snp, refcounts_snp, context, LocusCoverage = FALSE)
 }
 \arguments{
 \item{varcounts_snv}{A count of
@@ -28,8 +27,6 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 \item{context}{represents either the situation of a mutation which occurred after the CNV ("C1") or the context of a mutation which occurred before the CNV ("C2"). If not provided, the right context will be estimated from the input}
 
 \item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
-
-\item{CopyNumberFraction}{when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.}
 }
 \value{
 the matrices W, C and M for the linear system of prevalence computation.

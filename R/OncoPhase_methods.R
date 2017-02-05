@@ -87,7 +87,7 @@
 #' #'@seealso \code{\link{getPrevalence}}
 #' @export
 #'
-getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=FALSE,SomaticCountAdjust=FALSE,NormalCellContamination=NULL,Optimal=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1, snvonly_max_treshold=0.01,verbose=TRUE)
+getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, region=NULL,detail=TRUE,  LocusCoverage=FALSE,SomaticCountAdjust=FALSE,Optimal=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.0, snvonly_max_treshold=0.01,verbose=TRUE)
 {
   
   #Check the compulsory columns
@@ -101,17 +101,19 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
   
   
   #set the mode if numeric, 0=SNVOnly, 1 = PhasedSNP, 2=Ultimate, 3 = OptimalSNP
-  numeric_mode=c("SNVOnly", "PhasedSNP","Ultimate","OptimalSNP")
+  numeric_mode=c("SNVOnly", "PhasedSNP","Ultimate")
   if(is.numeric(mode))
   {
-    if(mode %in% c(0,1,2,3))
+    if(mode %in% c(0,1,2))
     {
       mode = numeric_mode[mode +1 ]
     }else{
-      stop("\n\n Mode parameter, if numeric,  should be either 0, 1,  2 or 3")
+      stop("\n\n Mode parameter, if numeric,  should be either 0, 1, or 2")
     }
   }
   
+  if(!is.null(snvonly_max_treshold) && mode != "Ultimate")
+    warnings(" The prevalences will be computed under the mode : ", mode, " Your provided parameter snvonly_max_treshold will be ignored")
   
   #Prepare the master matrices for the prevalence.
   masterprevalence=as.data.frame(matrix(nrow=nrow(input_df), ncol=nbFirstColumns+5))
@@ -133,6 +135,8 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
     major_cn=input_df[imut,"major_cn"]
     varcounts_snp=input_df[imut,"varcounts_snp"]
     refcounts_snp=input_df[imut,"refcounts_snp"]
+    NormalCellContamination =input_df[imut,"normal_fraction"]
+    
     
     InputValues=paste(varcounts_snv,refcounts_snv,major_cn,minor_cn,varcounts_snp,refcounts_snp,sep=":")
 
@@ -156,6 +160,8 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
     masterprevalence[imut,"Alt_Prevalence"] = prevalence$Alt_Prevalence
     masterprevalence[imut,"Alt_solutionNorm"] = prevalence$Alt_solutionNorm
     masterprevalence[imut,"Alt_residualNorm"] = prevalence$Alt_residualNorm
+   masterprevalence[imut,"TumourPrevalence"] = prevalence$TumourPrevalence
+      
     masterprevalence[imut,"InputValues"] = InputValues
     masterprevalence[imut,"Mode"] = prevalence$Mode
     masterprevalence[imut,"lm_inputs"] = prevalence$lm_inputs
@@ -356,7 +362,7 @@ getSamplePrevalence<-function(input_df,mode="Ultimate",  nbFirstColumns=0, regio
 #'
 #' @seealso \code{\link{getPrevalence}},  \code{\link{getSamplePrevalence}},   \code{\link{getSinglePhasedSNPPrevalence}}, \code{\link{getSingleSNVOnlyPrevalence}}
 #' @export
-getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp=NULL, refcounts_snp=NULL,  detail=FALSE, mode="Ultimate",Trace=FALSE,LocusCoverage=FALSE,SomaticCountAdjust=FALSE,Optimal=TRUE, NormalCellContamination=NULL, Context=NULL, SearchContext=TRUE, c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.1, snvonly_max_treshold=0.01 )
+getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts_snp=NULL, refcounts_snp=NULL,  detail=FALSE, mode="Ultimate",Trace=FALSE,LocusCoverage=FALSE,SomaticCountAdjust=FALSE,Optimal=TRUE, NormalCellContamination=NULL, Context=NULL, SearchContext=TRUE,  c2_max_residual_treshold=Inf, c1_ultimate_c2_replacing_treshold=0.0, snvonly_max_treshold=0.01)
 {
 
   N=length(varcounts_snv) # Number of samples
@@ -378,6 +384,11 @@ getPrevalence<-function(varcounts_snv,refcounts_snv,major_cn,minor_cn, varcounts
     }else{
       stop("\n\n Mode parameter, if numeric,  should be either 0, 1 or 2")
     }
+  }
+  
+  if(is.null(varcounts_snp) & mode !="SNVOnly"){
+    warning("\n Mode will be set to SNVOnly since no phased SNP information provided")
+    mode="SNVOnly"
   }
 
 
@@ -488,11 +499,17 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
 
     #if(length(varcounts_snp)>1)
     {
+
+      
       tumoursamples= names(varcounts_snp)
       if (is.null(tumoursamples)){
         tumoursamples = paste("Sample",c(1:length(varcounts_snp)),sep="_")
       }
 
+      
+
+      
+      
       #To avoid some side error, we transform them into vector
       varcounts_snp=as.vector(varcounts_snp)
       refcounts_snp=as.vector(refcounts_snp)
@@ -500,13 +517,14 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
       refcounts_snv = as.vector(refcounts_snv)
       major_cn = as.vector(major_cn)
       minor_cn=as.vector(minor_cn)
-
+      NormalCellContamination = as.vector(NormalCellContamination)
       names(varcounts_snp) =  tumoursamples
       names(refcounts_snp) =  tumoursamples
       names(varcounts_snv) =  tumoursamples
       names(refcounts_snv) =  tumoursamples
       names(major_cn) =  tumoursamples
       names(minor_cn) =  tumoursamples
+      if(!is.null(NormalCellContamination)) names(NormalCellContamination) =  tumoursamples
 
     }
 
@@ -534,6 +552,7 @@ getPhasedSNPPrevalence<-function( varcounts_snv,refcounts_snv,major_cn,minor_cn,
         varcounts_snp=varcounts_snp[sample],
         refcounts_snp=refcounts_snp[sample],#/ omega_G[sample] - varcounts_snp[sample],
         detail=1,
+        NormalCellContamination=NormalCellContamination[sample],
         Trace=Trace,
         LocusCoverage=LocusCoverage,
         SomaticCountAdjust=SomaticCountAdjust,
@@ -662,7 +681,7 @@ getPhasedSNPPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_
   minor_cn = as.numeric(minor_cn)
   varcounts_snp = as.numeric(varcounts_snp)
   refcounts_snp = as.numeric(refcounts_snp)
-
+  NormalCellContamination=as.numeric(NormalCellContamination)
 
   Prevalence=NA
   DetailedPrevvalence=NA
@@ -789,11 +808,13 @@ getPhasedSNPPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_
     }else{
       Qual="L"
     }
-    
-
+  
+    TumourPrevalence = Prevalence
+  if(!is.null(NormalCellContamination))
+    TumourPrevalence = min(1, Prevalence * 1/(1-NormalCellContamination) )
     
     if(detail){
-      Prevalence_output = list(Context=selectedcontext,Prevalence=Prevalence,DetailedPrevalence=AllPrevalences,solutionNorm=as.numeric(solutionNorm), residualNorm= as.numeric(residualNorm), Quality=Qual,Alt_Prevalence=as.numeric(AlternativeContextPrevalence), Alt_solutionNorm=as.numeric(AlternativeContextsolutionNorm),Alt_residualNorm=as.numeric(AlternativeContextresidualNorm),CondensedPrevalence = condensedPrevalence,lm_inputs=lm_inputs, lm_params=lm_params)
+      Prevalence_output = list(Context=selectedcontext,Prevalence=Prevalence,DetailedPrevalence=AllPrevalences,solutionNorm=as.numeric(solutionNorm), residualNorm= as.numeric(residualNorm), Quality=Qual,Alt_Prevalence=as.numeric(AlternativeContextPrevalence), Alt_solutionNorm=as.numeric(AlternativeContextsolutionNorm),Alt_residualNorm=as.numeric(AlternativeContextresidualNorm),CondensedPrevalence = condensedPrevalence,TumourPrevalence =TumourPrevalence ,lm_inputs=lm_inputs, lm_params=lm_params)
     }else{
       Prevalence_output = Prevalence
     }
@@ -929,7 +950,7 @@ getSNVOnlyPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_cn
   
   PrevalenceCond_C2=PrevalenceCond_C2_minor
   if (as.numeric(PrevalenceCond_C2_major[[1]]["solutionNorm"])< as.numeric(PrevalenceCond_C2_minor[[1]]["solutionNorm"]))
-    revalenceCond_C2=PrevalenceCond_C2_major
+    PrevalenceCond_C2=PrevalenceCond_C2_major
     
  # cat("\n\nPrevalenceCond_C2\n")
  # print(PrevalenceCond_C2)
@@ -1032,9 +1053,13 @@ getSNVOnlyPrevalence_singlesample<-function(varcounts_snv,refcounts_snv,major_cn
     Qual="L"
   }
   
+  TumourPrevalence = Prevalence
+  if(!is.null(NormalCellContamination))
+    TumourPrevalence = min(1, Prevalence * 1/(1-NormalCellContamination) )
+  
   
   if(detail){
-    Prevalence_output = list(Context=selectedcontext,Prevalence=Prevalence,DetailedPrevalence=AllPrevalences,solutionNorm=as.numeric(solutionNorm), residualNorm= as.numeric(residualNorm), Quality=Qual,Alt_Prevalence=as.numeric(AlternativeContextPrevalence), Alt_solutionNorm=as.numeric(AlternativeContextsolutionNorm),Alt_residualNorm=as.numeric(AlternativeContextresidualNorm),CondensedPrevalence = condensedPrevalence,lm_inputs=lm_inputs, lm_params=lm_params)
+    Prevalence_output = list(Context=selectedcontext,Prevalence=Prevalence,DetailedPrevalence=AllPrevalences,solutionNorm=as.numeric(solutionNorm), residualNorm= as.numeric(residualNorm), Quality=Qual,Alt_Prevalence=as.numeric(AlternativeContextPrevalence), Alt_solutionNorm=as.numeric(AlternativeContextsolutionNorm),Alt_residualNorm=as.numeric(AlternativeContextresidualNorm),CondensedPrevalence = condensedPrevalence,TumourPrevalence=TumourPrevalence,lm_inputs=lm_inputs, lm_params=lm_params)
   }else{
     Prevalence_output = Prevalence
   }

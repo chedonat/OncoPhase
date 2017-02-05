@@ -7,10 +7,10 @@
 getPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn,
   varcounts_snp = NULL, refcounts_snp = NULL, detail = FALSE,
   mode = "Ultimate", Trace = FALSE, LocusCoverage = FALSE,
-  SomaticCountAdjust = FALSE, CopyNumberFraction = FALSE, Optimal = TRUE,
+  SomaticCountAdjust = FALSE, Optimal = TRUE,
   NormalCellContamination = NULL, Context = NULL, SearchContext = TRUE,
   c2_max_residual_treshold = Inf, c1_ultimate_c2_replacing_treshold = 0.1,
-  snvonly_max_treshold = 0.1)
+  snvonly_max_treshold = 0.01)
 }
 \arguments{
 \item{varcounts_snv}{A count (or a vector of counts  if multiple samples ) of
@@ -55,8 +55,6 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 \item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
 
 \item{SomaticCountAdjust}{when set to 1, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the rules varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly.}
-
-\item{CopyNumberFraction}{when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.}
 
 \item{Optimal}{If TRUE, the prevalence is computed under all combination of the options SomaticCountAdjust, LocusCoverage and NormalisedCount, the value with the lower residual  is returned as the best prevalence}
 

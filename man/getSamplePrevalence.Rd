@@ -6,10 +6,9 @@
 \usage{
 getSamplePrevalence(input_df, mode = "Ultimate", nbFirstColumns = 0,
   region = NULL, detail = TRUE, LocusCoverage = FALSE,
-  SomaticCountAdjust = FALSE, CopyNumberFraction = FALSE,
-  NormalCellContamination = NULL, Optimal = TRUE,
-  c2_max_residual_treshold = Inf, c1_ultimate_c2_replacing_treshold = 0.1,
-  snvonly_max_treshold = 0.1)
+  SomaticCountAdjust = FALSE, Optimal = TRUE,
+  c2_max_residual_treshold = Inf, c1_ultimate_c2_replacing_treshold = 0,
+  snvonly_max_treshold = 0.01, verbose = TRUE)
 }
 \arguments{
 \item{input_df}{A data frame containing for each mutation the following information (columns or fields) :
@@ -34,17 +33,15 @@ getSamplePrevalence(input_df, mode = "Ultimate", nbFirstColumns = 0,
 
 \item{SomaticCountAdjust}{when set to TRUE, varcounts_snv and refcounts_snv might be adjusted if necessary so that they meet the reqirements varcounts_snv <= varcounts_snp, refcounts_snv >= refcounts_snp and varcounts_snv + refcounts_snv ~ Poiss(varcounts_snp + refcounts_snp). Not used if mode=SNVOnly.}
 
-\item{CopyNumberFraction}{when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.}
-
-\item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
-
-\item{Optimal}{The model will be run under different configurations  of the parameters LocusCoverage, SomaticCountAdjust and CopyNumberFraction, they configuration yielding the optimal residual is then selected and returned.}
+\item{Optimal}{The model will be run under different configurations  of the parameters LocusCoverage and SomaticCountAdjust. The configuration yielding the optimal residual is then selected and returned.}
 
 \item{c2_max_residual_treshold}{Maximum residual threshold under which the context C2 can be inferred.}
 
 \item{c1_ultimate_c2_replacing_treshold}{Context C1 is inferred if its linear model residual is less than the specified threshold.}
 
 \item{snvonly_max_treshold}{Maximum threshold the linear model under SNVOnly is considered valid. Is the residual is greater than the value, then PhasedSNP is considered in case the phasing information are available.}
+
+\item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
 }
 \value{
 A data frame containing :

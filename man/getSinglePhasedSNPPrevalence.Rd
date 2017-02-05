@@ -6,8 +6,7 @@
 \usage{
 getSinglePhasedSNPPrevalence(varcounts_snv, refcounts_snv, major_cn, minor_cn,
   varcounts_snp, refcounts_snp, context, Trace = FALSE,
-  LocusCoverage = TRUE, NormalCellContamination = NULL,
-  CopyNumberFraction = FALSE)
+  LocusCoverage = TRUE, NormalCellContamination = NULL)
 }
 \arguments{
 \item{varcounts_snv}{A count of
@@ -33,8 +32,6 @@ alleles  supporting the reference sequence  of  the Germline SNP}
 \item{LocusCoverage}{when set to TRUE, the SNV locus coverage is estimated to the average coverage of the phased SNP and the variant allele fraction is the ratio of the variant allele count over the estimated locus coverage.}
 
 \item{NormalCellContamination}{If provided, represents the rate of normal cells contaminations in the experiment.}
-
-\item{CopyNumberFraction}{when set to TRUE, if the mode is PhasedSNP then copy number fraction is considered as input to the linear model is replacement of the phased SNP allele fraction.}
 }
 \value{
 A list of the three cellular prevalence of each of the three groups of cells
